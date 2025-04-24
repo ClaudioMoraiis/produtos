@@ -1,6 +1,6 @@
 package com.example.demo.jwt;
 
-import com.example.demo.repository.UsuarioRepository;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,7 +21,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     TokenService fTokenService;
 
     @Autowired
-    UsuarioRepository fUsuarioRepository;
+    UserRepository fUsuarioRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest mRequest, HttpServletResponse mResponse, FilterChain mFilterChain) throws ServletException, IOException {

@@ -28,8 +28,7 @@ public class SecutiryConfigurations {
                 .csrf(mCsrf -> mCsrf.disable())
                 .sessionManagement(mSession -> mSession.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(mAuthorize -> mAuthorize
-                        .requestMatchers(HttpMethod.POST, "usuario/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "usuario/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/login", "/user/register").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(fSecurityFilter, UsernamePasswordAuthenticationFilter.class)

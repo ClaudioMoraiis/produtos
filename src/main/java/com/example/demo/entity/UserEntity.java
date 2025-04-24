@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.userRole.UsuarioRole;
+import com.example.demo.userRole.UserRole;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,7 +10,8 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-public class Usuario implements UserDetails {
+@Table(name = "Usuario")
+public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "usu_name")
@@ -23,11 +24,11 @@ public class Usuario implements UserDetails {
     private String senha;
 
     @Column(name = "usu_role")
-    private UsuarioRole role;
+    private UserRole role;
 
-    public Usuario(){}
+    public UserEntity(){}
 
-    public Usuario(Long id, String email, String senha) {
+    public UserEntity(Long id, String email, String senha) {
         this.id = id;
         this.email = email;
         this.senha = senha;
@@ -59,7 +60,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public final boolean equals(Object o) {
-        if (!(o instanceof Usuario usuario)) return false;
+        if (!(o instanceof UserEntity usuario)) return false;
 
         return id.equals(usuario.id) && email.equals(usuario.email) && senha.equals(usuario.senha);
     }
@@ -83,7 +84,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (this.role == UsuarioRole.ADMIN) return List.of(
+        if (this.role == UserRole.ADMIN) return List.of(
                                                            new SimpleGrantedAuthority("ROLE_ADMIN"),
                                                            new SimpleGrantedAuthority("ROLE_USER"));
         else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
