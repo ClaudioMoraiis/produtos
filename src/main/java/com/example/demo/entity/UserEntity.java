@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.dto.UserDTO;
 import com.example.demo.userRole.UserRole;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,10 +11,10 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "Usuario")
+@Table(name = "usuario")
 public class UserEntity implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "usu_name")
     private Long id;
 
@@ -32,6 +33,11 @@ public class UserEntity implements UserDetails {
         this.id = id;
         this.email = email;
         this.senha = senha;
+    }
+
+    public UserEntity(UserDTO mUserDTO){
+        this.email = mUserDTO.getEmail();
+        this.senha = mUserDTO.getSenha();
     }
 
     public Long getId() {
