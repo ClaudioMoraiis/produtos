@@ -20,4 +20,9 @@ public class UserController {
     public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO){
         return fService.register(userDTO);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login (@Valid @RequestBody UserDTO mUserDTO){
+        return fService.login(mUserDTO);
+    }
 }
