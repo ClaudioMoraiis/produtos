@@ -29,10 +29,11 @@ public class UserEntity implements UserDetails {
 
     public UserEntity(){}
 
-    public UserEntity(Long id, String email, String senha) {
+    public UserEntity(Long id, String email, String senha, UserRole userRole) {
         this.id = id;
         this.email = email;
         this.senha = senha;
+        this.role = userRole;
     }
 
     public UserEntity(UserDTO mUserDTO){

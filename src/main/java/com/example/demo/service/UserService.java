@@ -33,9 +33,8 @@ public class UserService {
         mUserEntity.setSenha(mEncryptedPassword);
         mUserEntity.setEmail(mUserDTO.getEmail());
         fRepository.save(mUserEntity);
-        return ResponseEntity.status(HttpStatus.OK).body("Usuário cadastro com sucesso");
+        return ResponseEntity.status(HttpStatus.OK).body("Usuário cadastrado com sucesso");
     }
-
 
     public ResponseEntity<?> login(UserDTO mUserDTO){
         UserEntity mUserEntity = fRepository.findByEmail(mUserDTO.getEmail());
@@ -49,7 +48,7 @@ public class UserService {
             var mToken = fTokenService.generateToken((UserEntity) mAuth.getPrincipal());
 
 
-            return ResponseEntity.ok("Login realizado com sucesso\n" + "Token :" + mToken);
+            return ResponseEntity.status(HttpStatus.OK).body("Login realizado com sucesso\n" + "Token :" + mToken);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Erro " + e.getClass().getSimpleName() + " - " + e.getMessage());
