@@ -1,7 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.dto.UserDTO;
-import com.example.demo.userRole.UserRole;
+import com.example.demo.enums.UserRoleEnum;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,11 +25,11 @@ public class UserEntity implements UserDetails {
     private String senha;
 
     @Column(name = "usu_role")
-    private UserRole role;
+    private UserRoleEnum role;
 
     public UserEntity(){}
 
-    public UserEntity(Long id, String email, String senha, UserRole userRole) {
+    public UserEntity(Long id, String email, String senha, UserRoleEnum userRole) {
         this.id = id;
         this.email = email;
         this.senha = senha;
@@ -91,7 +91,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (this.role == UserRole.ADMIN) return List.of(
+        if (this.role == UserRoleEnum.ADMIN) return List.of(
                                                            new SimpleGrantedAuthority("ROLE_ADMIN"),
                                                            new SimpleGrantedAuthority("ROLE_USER"));
         else return List.of(new SimpleGrantedAuthority("ROLE_USER"));

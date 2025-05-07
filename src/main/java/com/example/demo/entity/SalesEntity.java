@@ -1,0 +1,108 @@
+package com.example.demo.entity;
+
+import com.example.demo.enums.SaleStatusEnum;
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "VENDAS")
+public class SalesEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ven_id")
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "ven_id_cliente", referencedColumnName = "cli_id", nullable = false)
+    private ClientEntity cliente;
+
+    @Column(name = "ven_data_venda")
+    private LocalDate dataVenda;
+
+    @Column(name = "ven_total")
+    private BigDecimal total;
+
+    @Column(name = "ven_status")
+    @Enumerated(EnumType.ORDINAL)
+    private SaleStatusEnum status;
+
+    public SalesEntity(Long id, ClientEntity cliente, LocalDate dataVenda, BigDecimal total, SaleStatusEnum status) {
+        this.id = id;
+        this.cliente = cliente;
+        this.dataVenda = dataVenda;
+        this.total = total;
+        this.status = status;
+    }
+
+    public SalesEntity(){}
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public ClientEntity getIdCliente() {
+        return cliente;
+    }
+
+    public void setIdCliente(ClientEntity cliente) {
+        this.cliente = cliente;
+    }
+
+    public LocalDate getDataVenda() {
+        return dataVenda;
+    }
+
+    public void setDataVenda(LocalDate dataVenda) {
+        this.dataVenda = dataVenda;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
+
+    public SaleStatusEnum getStatus() {
+        return status;
+    }
+
+    public void setStatus(SaleStatusEnum status) {
+        this.status = status;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (!(o instanceof SalesEntity that)) return false;
+
+        return id.equals(that.id) && cliente.equals(that.cliente) && dataVenda.equals(that.dataVenda) && total.equals(that.total) && status == that.status;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + cliente.hashCode();
+        result = 31 * result + dataVenda.hashCode();
+        result = 31 * result + total.hashCode();
+        result = 31 * result + status.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "SalesEntity{" +
+                "id=" + id +
+                ", idCliente=" + cliente +
+                ", dataVenda=" + dataVenda +
+                ", total=" + total +
+                ", status=" + status +
+                '}';
+    }
+}

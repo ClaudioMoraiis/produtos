@@ -128,7 +128,10 @@ public class ProductEntity {
     public final boolean equals(Object o) {
         if (!(o instanceof ProductEntity that)) return false;
 
-        return id.equals(that.id) && nome.equals(that.nome) && precoCusto.equals(that.precoCusto) && precoVenda.equals(that.precoVenda) && estoqueAtual.equals(that.estoqueAtual) && unidadeMedida.equals(that.unidadeMedida) && ativo.equals(that.ativo) && dataCadastro.equals(that.dataCadastro) && dataUltimaAtualizacao.equals(that.dataUltimaAtualizacao);
+        return id.equals(that.id) && nome.equals(that.nome) && precoCusto.equals(that.precoCusto) &&
+               precoVenda.equals(that.precoVenda) && estoqueAtual.equals(that.estoqueAtual) &&
+               unidadeMedida.equals(that.unidadeMedida) && ativo.equals(that.ativo) && dataCadastro.equals(that.dataCadastro) &&
+               dataUltimaAtualizacao.equals(that.dataUltimaAtualizacao);
     }
 
     @Override

@@ -1,12 +1,12 @@
-package com.example.demo.userRole;
+package com.example.demo.enums;
 
-public enum UserRole {
+public enum UserRoleEnum {
     ADMIN("admin"),
     USER("user");
 
     private String role;
 
-    UserRole(String role){
+    UserRoleEnum(String role){
         this.role = role;
     }
 
