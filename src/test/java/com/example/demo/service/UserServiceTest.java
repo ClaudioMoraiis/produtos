@@ -84,6 +84,27 @@ class UserServiceTest {
         //Aqui comparou o que veio no body(o retorno) no service com a string passada, se igual o teste passa
         assertTrue(mResponse.getBody().toString().contains("Token :mockedToken123"));
         //Aqui verifica se no body veio o token ficticio
+    }
 
+    @Test
+    @DisplayName("Sucesso ao criar usuário")
+    void registerUserSuccess(){
+        UserDTO mUserDTO = new UserDTO("test@gmail.com", "encryptedPassword");
+        ResponseEntity<?> mResponse = fService.register(mUserDTO);
+
+        assertEquals(HttpStatus.OK, mResponse.getStatusCode());
+        assertTrue(mResponse.getBody().toString().contains("Usuário cadastrado com sucesso"));
+    }
+
+    @Test
+    @DisplayName("Conflito de e-mail já cadastrado")
+    void registerUserEmailAlreadyExists(){
+        UserDTO mUserDTO = new UserDTO("test@gmail.com", "senha123");
+
+        when(fRepository.existsByEmail("test@gmail.com")).thenReturn(true);
+        ResponseEntity<?> mResponse = fService.register(mUserDTO);
+
+        assertEquals(HttpStatus.CONFLICT, mResponse.getStatusCode());
+        assertTrue(mResponse.getBody().toString().contains("E-mail já cadastrado, verifique!"));
     }
 }

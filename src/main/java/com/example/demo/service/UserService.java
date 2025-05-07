@@ -29,6 +29,9 @@ public class UserService {
     public ResponseEntity<?> register(UserDTO mUserDTO){
         UserEntity mUserEntity = new UserEntity();
 
+        if (!fRepository.existsByEmail(mUserDTO.getEmail()))
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("E-mail já cadastrado, verifique!");
+
         String mEncryptedPassword = fPasswordEncoder.encode(mUserDTO.getSenha());
         mUserEntity.setSenha(mEncryptedPassword);
         mUserEntity.setEmail(mUserDTO.getEmail());

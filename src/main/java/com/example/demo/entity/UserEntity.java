@@ -11,14 +11,14 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "usuario")
+@Table(name = "USUARIO")
 public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "usu_name")
     private Long id;
 
-    @Column(name = "uso_email")
+    @Column(name = "usu_email")
     private String email;
 
     @Column(name = "usu_senha")
