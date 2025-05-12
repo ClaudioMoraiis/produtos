@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.UserDTO;
-import com.example.demo.entity.UserEntity;
+import com.example.demo.entity.UsuarioEntity;
 import com.example.demo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -58,7 +58,7 @@ class UserServiceTest {
     @DisplayName("Login success")
     void testLoginSuccees(){
         UserDTO mUserDTO = new UserDTO("teste@gmail.com", "123");
-        UserEntity mUserEntity = new UserEntity();
+        UsuarioEntity mUserEntity = new UsuarioEntity();
         mUserEntity.setEmail("TESTE@GMAIL.COM");
         mUserEntity.setSenha("senha123");
         // preenche a senha e cria o VO

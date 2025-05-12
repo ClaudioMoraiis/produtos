@@ -1,12 +1,12 @@
 package com.example.demo.enums;
 
-public enum TypeDocumentEnum {
+public enum TipoDocumentoEnum {
     CPF("CPF"),
     CNPJ("CNPJ");
 
     private String typeDocumentEnum;
 
-    TypeDocumentEnum(String typeDocumentEnum){
+    TipoDocumentoEnum(String typeDocumentEnum){
         this.typeDocumentEnum = typeDocumentEnum;
     }
 

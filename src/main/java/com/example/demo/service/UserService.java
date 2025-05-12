@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.UserDTO;
-import com.example.demo.entity.UserEntity;
+import com.example.demo.entity.UsuarioEntity;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 public class UserService {
@@ -27,7 +26,7 @@ public class UserService {
     private TokenService fTokenService;
 
     public ResponseEntity<?> register(UserDTO mUserDTO){
-        UserEntity mUserEntity = new UserEntity();
+        UsuarioEntity mUserEntity = new UsuarioEntity();
 
         if (!fRepository.existsByEmail(mUserDTO.getEmail()))
             return ResponseEntity.status(HttpStatus.CONFLICT).body("E-mail já cadastrado, verifique!");
@@ -40,7 +39,7 @@ public class UserService {
     }
 
     public ResponseEntity<?> login(UserDTO mUserDTO){
-        UserEntity mUserEntity = fRepository.findByEmail(mUserDTO.getEmail());
+        UsuarioEntity mUserEntity = fRepository.findByEmail(mUserDTO.getEmail());
         try{
             if (mUserEntity == null){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum usuário encontrado");
@@ -48,7 +47,7 @@ public class UserService {
 
             var mAuthToken = new UsernamePasswordAuthenticationToken(mUserDTO.getEmail().toUpperCase(), mUserDTO.getSenha());
             var mAuth = fAuthenticationManager.authenticate(mAuthToken);
-            var mToken = fTokenService.generateToken((UserEntity) mAuth.getPrincipal());
+            var mToken = fTokenService.generateToken((UsuarioEntity) mAuth.getPrincipal());
 
 
             return ResponseEntity.status(HttpStatus.OK).body("Login realizado com sucesso\n" + "Token :" + mToken);

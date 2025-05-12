@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.enums.SaleStatusEnum;
+import com.example.demo.enums.StatusVendaEnum;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "VENDAS")
-public class SalesEntity {
+public class VendasEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ven_id")
@@ -16,7 +16,7 @@ public class SalesEntity {
 
     @ManyToOne
     @JoinColumn(name = "ven_id_cliente", referencedColumnName = "cli_id", nullable = false)
-    private ClientEntity cliente;
+    private ClienteEntity cliente;
 
     @Column(name = "ven_data_venda")
     private LocalDate dataVenda;
@@ -26,9 +26,9 @@ public class SalesEntity {
 
     @Column(name = "ven_status")
     @Enumerated(EnumType.ORDINAL)
-    private SaleStatusEnum status;
+    private StatusVendaEnum status;
 
-    public SalesEntity(Long id, ClientEntity cliente, LocalDate dataVenda, BigDecimal total, SaleStatusEnum status) {
+    public VendasEntity(Long id, ClienteEntity cliente, LocalDate dataVenda, BigDecimal total, StatusVendaEnum status) {
         this.id = id;
         this.cliente = cliente;
         this.dataVenda = dataVenda;
@@ -36,7 +36,7 @@ public class SalesEntity {
         this.status = status;
     }
 
-    public SalesEntity(){}
+    public VendasEntity(){}
 
     public Long getId() {
         return id;
@@ -46,11 +46,11 @@ public class SalesEntity {
         this.id = id;
     }
 
-    public ClientEntity getIdCliente() {
+    public ClienteEntity getIdCliente() {
         return cliente;
     }
 
-    public void setIdCliente(ClientEntity cliente) {
+    public void setIdCliente(ClienteEntity cliente) {
         this.cliente = cliente;
     }
 
@@ -70,17 +70,17 @@ public class SalesEntity {
         this.total = total;
     }
 
-    public SaleStatusEnum getStatus() {
+    public StatusVendaEnum getStatus() {
         return status;
     }
 
-    public void setStatus(SaleStatusEnum status) {
+    public void setStatus(StatusVendaEnum status) {
         this.status = status;
     }
 
     @Override
     public final boolean equals(Object o) {
-        if (!(o instanceof SalesEntity that)) return false;
+        if (!(o instanceof VendasEntity that)) return false;
 
         return id.equals(that.id) && cliente.equals(that.cliente) && dataVenda.equals(that.dataVenda) && total.equals(that.total) && status == that.status;
     }

@@ -12,7 +12,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "USUARIO")
-public class UserEntity implements UserDetails {
+public class UsuarioEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "usu_name")
@@ -27,16 +27,16 @@ public class UserEntity implements UserDetails {
     @Column(name = "usu_role")
     private UserRoleEnum role;
 
-    public UserEntity(){}
+    public UsuarioEntity(){}
 
-    public UserEntity(Long id, String email, String senha, UserRoleEnum userRole) {
+    public UsuarioEntity(Long id, String email, String senha, UserRoleEnum userRole) {
         this.id = id;
         this.email = email;
         this.senha = senha;
         this.role = userRole;
     }
 
-    public UserEntity(UserDTO mUserDTO){
+    public UsuarioEntity(UserDTO mUserDTO){
         this.email = mUserDTO.getEmail();
         this.senha = mUserDTO.getSenha();
     }
@@ -67,7 +67,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public final boolean equals(Object o) {
-        if (!(o instanceof UserEntity usuario)) return false;
+        if (!(o instanceof UsuarioEntity usuario)) return false;
 
         return id.equals(usuario.id) && email.equals(usuario.email) && senha.equals(usuario.senha);
     }

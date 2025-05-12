@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "PRODUTO")
-public class ProductEntity {
+public class ProdutoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pro_id")
@@ -37,8 +37,8 @@ public class ProductEntity {
     @Column(name = "pro_data_utl_atualizacao")
     private LocalDate dataUltimaAtualizacao;
 
-    public ProductEntity(Long id, String nome, BigDecimal precoCusto, BigDecimal precoVenda, Integer estoqueAtual,
-      String unidadeMedida, Boolean ativo, LocalDate dataCadastro, LocalDate dataUltimaAtualizacao) {
+    public ProdutoEntity(Long id, String nome, BigDecimal precoCusto, BigDecimal precoVenda, Integer estoqueAtual,
+                         String unidadeMedida, Boolean ativo, LocalDate dataCadastro, LocalDate dataUltimaAtualizacao) {
         this.id = id;
         this.nome = nome;
         this.precoCusto = precoCusto;
@@ -50,7 +50,7 @@ public class ProductEntity {
         this.dataUltimaAtualizacao = dataUltimaAtualizacao;
     }
 
-    public ProductEntity(){};
+    public ProdutoEntity(){};
 
     public Long getId() {
         return id;
@@ -126,7 +126,7 @@ public class ProductEntity {
 
     @Override
     public final boolean equals(Object o) {
-        if (!(o instanceof ProductEntity that)) return false;
+        if (!(o instanceof ProdutoEntity that)) return false;
 
         return id.equals(that.id) && nome.equals(that.nome) && precoCusto.equals(that.precoCusto) &&
                precoVenda.equals(that.precoVenda) && estoqueAtual.equals(that.estoqueAtual) &&

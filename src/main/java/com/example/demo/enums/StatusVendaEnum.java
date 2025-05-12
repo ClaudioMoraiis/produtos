@@ -1,13 +1,13 @@
 package com.example.demo.enums;
 
-public enum SaleStatusEnum {
+public enum StatusVendaEnum {
     CONCLUIDA(1),
     CANCELADA(2),
     PENDENTE(3);
 
     private Integer status;
 
-    SaleStatusEnum(Integer status) {
+    StatusVendaEnum(Integer status) {
         this.status = status;
     }
 
