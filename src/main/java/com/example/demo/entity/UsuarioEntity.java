@@ -41,6 +41,13 @@ public class UsuarioEntity implements UserDetails {
         this.senha = mUserDTO.getSenha();
     }
 
+    @PrePersist
+    @PreUpdate
+    private void upperCase(){
+        if (email != null)
+            email = email.toUpperCase();
+    }
+
     public Long getId() {
         return id;
     }

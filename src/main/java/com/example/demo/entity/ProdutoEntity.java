@@ -52,6 +52,16 @@ public class ProdutoEntity {
 
     public ProdutoEntity(){};
 
+    @PrePersist
+    @PreUpdate
+    private void upperCase(){
+        if (nome != null)
+            nome = nome.toUpperCase();
+
+        if (unidadeMedida != null)
+            unidadeMedida = unidadeMedida.toUpperCase();
+    }
+
     public Long getId() {
         return id;
     }
