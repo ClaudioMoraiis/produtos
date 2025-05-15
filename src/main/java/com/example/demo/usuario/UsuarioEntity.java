@@ -1,6 +1,5 @@
-package com.example.demo.entity;
+package com.example.demo.usuario;
 
-import com.example.demo.dto.UserDTO;
 import com.example.demo.enums.UserRoleEnum;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;

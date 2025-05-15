@@ -1,14 +1,9 @@
-package com.example.demo.controller;
+package com.example.demo.produto;
 
-import com.example.demo.dto.ProdutoCadastroDTO;
-import com.example.demo.service.ProdutoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/produto")
@@ -19,5 +14,10 @@ public class ProdutoController {
     @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrar(@RequestBody @Valid ProdutoCadastroDTO mProdutoCadastroDTO){
         return fService.cadastrar(mProdutoCadastroDTO);
+    }
+
+    @PutMapping("/alterar/{id}")
+    public ResponseEntity<?> alterar(@RequestBody ProdutoAlterarDTO mProdutoAlterarDTO, @PathVariable Long id){
+        return fService.alterar(mProdutoAlterarDTO, id);
     }
 }

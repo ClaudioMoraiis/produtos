@@ -1,8 +1,9 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.UserDTO;
-import com.example.demo.entity.UsuarioEntity;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.usuario.UserDTO;
+import com.example.demo.usuario.UsuarioEntity;
+import com.example.demo.usuario.UserRepository;
+import com.example.demo.usuario.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

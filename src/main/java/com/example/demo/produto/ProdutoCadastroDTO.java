@@ -1,7 +1,6 @@
-package com.example.demo.dto;
+package com.example.demo.produto;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 

@@ -1,8 +1,6 @@
-package com.example.demo.service;
+package com.example.demo.usuario;
 
-import com.example.demo.dto.UserDTO;
-import com.example.demo.entity.UsuarioEntity;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

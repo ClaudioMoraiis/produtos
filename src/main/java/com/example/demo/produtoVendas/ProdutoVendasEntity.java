@@ -1,5 +1,7 @@
-package com.example.demo.entity;
+package com.example.demo.produtoVendas;
 
+import com.example.demo.entity.VendasEntity;
+import com.example.demo.produto.ProdutoEntity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;

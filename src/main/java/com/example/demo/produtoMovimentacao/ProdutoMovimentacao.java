@@ -1,8 +1,8 @@
-package com.example.demo.entity;
+package com.example.demo.produtoMovimentacao;
 
 import com.example.demo.enums.OrigemMovimentoEnum;
 import com.example.demo.enums.TipoMovimentoEnum;
-import com.mysql.cj.log.Log;
+import com.example.demo.produto.ProdutoEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
