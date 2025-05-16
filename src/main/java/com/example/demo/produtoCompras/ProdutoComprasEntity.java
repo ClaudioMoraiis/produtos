@@ -1,6 +1,6 @@
 package com.example.demo.produtoCompras;
 
-import com.example.demo.entity.CompraEntity;
+import com.example.demo.compra.CompraEntity;
 import com.example.demo.produto.ProdutoEntity;
 import jakarta.persistence.*;
 

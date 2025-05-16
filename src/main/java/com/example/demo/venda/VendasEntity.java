@@ -1,5 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.venda;
 
+import com.example.demo.cliente.ClienteEntity;
 import com.example.demo.enums.StatusVendaEnum;
 import jakarta.persistence.*;
 

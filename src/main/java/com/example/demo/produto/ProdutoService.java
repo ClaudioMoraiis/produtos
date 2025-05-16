@@ -17,6 +17,10 @@ public class ProdutoService {
     public ResponseEntity<?> cadastrar(ProdutoCadastroDTO mProdutoCadastroDTO) {
         ProdutoEntity mProdutoEntity = new ProdutoEntity();
 
+        if (fRepository.findByNome(mProdutoCadastroDTO.getNome()) != null){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Já existe um produto com esse nome");
+        }
+
         mProdutoEntity.setNome(mProdutoCadastroDTO.getNome());
         mProdutoEntity.setAtivo(mProdutoCadastroDTO.getAtivo());
         mProdutoEntity.setUnidadeMedida(mProdutoCadastroDTO.getUnidadeMedida());

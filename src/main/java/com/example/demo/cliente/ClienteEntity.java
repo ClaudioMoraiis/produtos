@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.example.demo.cliente;
 
 import com.example.demo.enums.TipoDocumentoEnum;
 import jakarta.persistence.*;
