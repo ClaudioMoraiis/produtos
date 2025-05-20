@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "CLIENTE")
-public class ClienteEntity {
+public class ClienteEntity implements ClienteDados {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cli_id")
@@ -20,7 +20,7 @@ public class ClienteEntity {
     private String documento;
 
     @Column(name = "cli_tipo_documento")
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private TipoDocumentoEnum tipoDocumento;
 
     @Column(name = "cli_data_nascimento")
