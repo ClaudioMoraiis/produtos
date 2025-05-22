@@ -16,6 +16,7 @@ public class Cliente {
         else
             mClienteEntity.setTipoDocumento(TipoDocumentoEnum.CPF);
 
+        mClienteEntity.setDocumento(Util.formatarDocumento(mCliente.getDocumento()));
         mClienteEntity.setDataNascimento(mCliente.getDataNascimento());
         mClienteEntity.setEmail(mCliente.getEmail());
         mClienteEntity.setTelefone(mCliente.getTelefone());
