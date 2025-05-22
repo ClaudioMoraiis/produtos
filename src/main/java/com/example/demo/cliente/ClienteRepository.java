@@ -3,5 +3,5 @@ package com.example.demo.cliente;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClienteRepository extends JpaRepository<ClienteEntity, Long> {
-    ClienteEntity findByDocumento(String mDocumento);
+    ClienteEntity findFirstByDocumentoOrderByIdAsc(String mDocumento);
 }
