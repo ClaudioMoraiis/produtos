@@ -22,6 +22,10 @@ public class ClienteService {
             if ((mDocumentoFormatado.length() != 11) && (mDocumentoFormatado.length() != 14))
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Insira um documento válido");
 
+            if (mClienteDTO.getTelefone().trim().replaceAll("[-/()]", "").length() != 11){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Preenche um numero de telefone válido");
+            }
+
             fRepository.save(Cliente.preencherVO(mClienteDTO));
             return ResponseEntity.status(HttpStatus.OK).body("Cliente cadastrado com sucesso.");
         } catch (Exception e ){

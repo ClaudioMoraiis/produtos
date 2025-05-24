@@ -2,6 +2,9 @@ package com.example.demo.util;
 
 import com.example.demo.enums.TipoDocumentoEnum;
 
+import javax.swing.text.MaskFormatter;
+import java.text.ParseException;
+
 public class Util {
     public static TipoDocumentoEnum validarTipoDocumento(String mDocumento){
        mDocumento = mDocumento.replaceAll("[./-]", "");
@@ -16,4 +19,17 @@ public class Util {
         else
             return mDocumento.replaceAll("(\\d{3})(\\d{3})(\\d{3})(\\d{2})", "$1.$2.$3-$4");
     }
+
+    public static String formatarTelefone(String mNumero){
+        try {
+            mNumero = mNumero.trim().replaceAll("[-/.()]", "");
+            MaskFormatter maskFormatter = new MaskFormatter("(##)#####-####");
+            maskFormatter.setValueContainsLiteralCharacters(false);
+
+            return maskFormatter.valueToString(mNumero);
+        } catch (ParseException e){
+            e.printStackTrace();
+            return mNumero;
+        }
+    };
 }
