@@ -23,7 +23,7 @@ public class ProdutoComprasEntity {
     private ProdutoEntity produto;
 
     @Column(name = "pco_quantidade")
-    private Float quantidade;
+    private Long quantidade;
 
     @Column(name = "pco_preco_unitario")
     private BigDecimal precoUnitario;
@@ -31,7 +31,7 @@ public class ProdutoComprasEntity {
     @Column(name = "pco_sub_total")
     private BigDecimal subTotal;
 
-    public ProdutoComprasEntity(Long id, CompraEntity compra, ProdutoEntity produto, Float quantidade, BigDecimal precoUnitario, BigDecimal subTotal) {
+    public ProdutoComprasEntity(Long id, CompraEntity compra, ProdutoEntity produto, Long quantidade, BigDecimal precoUnitario, BigDecimal subTotal) {
         this.id = id;
         this.compra = compra;
         this.produto = produto;
@@ -66,11 +66,11 @@ public class ProdutoComprasEntity {
         this.produto = produto;
     }
 
-    public Float getQuantidade() {
+    public Long getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(Float quantidade) {
+    public void setQuantidade(Long quantidade) {
         this.quantidade = quantidade;
     }
 
