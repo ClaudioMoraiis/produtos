@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "PRODUTO_MOVIMENTACAO")
-public class ProdutoMovimentacao {
+public class ProdutoMovimentacaoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "prm_id")
@@ -20,12 +20,14 @@ public class ProdutoMovimentacao {
     private ProdutoEntity produto;
 
     @Column(name = "prm_tipo_movimento")
+    @Enumerated(EnumType.STRING)
     private TipoMovimentoEnum tipoMovimento;
 
     @Column(name = "prm_quantidade")
     private Float quantidade;
 
     @Column(name = "prm_origem")
+    @Enumerated(EnumType.STRING)
     private OrigemMovimentoEnum origemMovimentoEnum;
 
     @Column(name = "prm_origem_id")
@@ -34,8 +36,8 @@ public class ProdutoMovimentacao {
     @Column(name = "prm_data_movimento")
     private LocalDate dataMovimento;
 
-    public ProdutoMovimentacao(Long id, ProdutoEntity produto, TipoMovimentoEnum tipoMovimento, Float quantidade,
-                               OrigemMovimentoEnum origemMovimentoEnum, Long idOrigem, LocalDate dataMovimento) {
+    public ProdutoMovimentacaoEntity(Long id, ProdutoEntity produto, TipoMovimentoEnum tipoMovimento, Float quantidade,
+                                     OrigemMovimentoEnum origemMovimentoEnum, Long idOrigem, LocalDate dataMovimento) {
         this.id = id;
         this.produto = produto;
         this.tipoMovimento = tipoMovimento;
@@ -45,7 +47,7 @@ public class ProdutoMovimentacao {
         this.dataMovimento = dataMovimento;
     }
 
-    public ProdutoMovimentacao(){};
+    public ProdutoMovimentacaoEntity(){};
 
     public Long getId() {
         return id;
@@ -105,7 +107,7 @@ public class ProdutoMovimentacao {
 
     @Override
     public final boolean equals(Object o) {
-        if (!(o instanceof ProdutoMovimentacao that)) return false;
+        if (!(o instanceof ProdutoMovimentacaoEntity that)) return false;
 
         return produto.equals(that.produto) && tipoMovimento == that.tipoMovimento && quantidade.equals(that.quantidade) && origemMovimentoEnum == that.origemMovimentoEnum && idOrigem.equals(that.idOrigem) && dataMovimento.equals(that.dataMovimento);
     }

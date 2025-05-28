@@ -23,7 +23,7 @@ public class ProdutoEntity {
     private BigDecimal precoVenda;
 
     @Column(name = "pro_estoque_atual")
-    private Integer estoqueAtual;
+    private Float estoqueAtual;
 
     @Column(name = "pro_unidade_medida")
     private String unidadeMedida;
@@ -37,7 +37,7 @@ public class ProdutoEntity {
     @Column(name = "pro_data_utl_atualizacao")
     private LocalDate dataUltimaAtualizacao;
 
-    public ProdutoEntity(Long id, String nome, BigDecimal precoCusto, BigDecimal precoVenda, Integer estoqueAtual,
+    public ProdutoEntity(Long id, String nome, BigDecimal precoCusto, BigDecimal precoVenda, Float estoqueAtual,
                          String unidadeMedida, Boolean ativo, LocalDate dataCadastro, LocalDate dataUltimaAtualizacao) {
         this.id = id;
         this.nome = nome;
@@ -94,11 +94,11 @@ public class ProdutoEntity {
         this.precoVenda = precoVenda;
     }
 
-    public Integer getEstoqueAtual() {
+    public Float getEstoqueAtual() {
         return estoqueAtual;
     }
 
-    public void setEstoqueAtual(Integer estoqueAtual) {
+    public void setEstoqueAtual(Float estoqueAtual) {
         this.estoqueAtual = estoqueAtual;
     }
 

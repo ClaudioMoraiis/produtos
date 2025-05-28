@@ -19,7 +19,7 @@ public class ProdutoCadastroDTO {
     private BigDecimal precoVenda;
 
     @JsonProperty("estoque_atual")
-    private Integer estoqueAtual;
+    private Float estoqueAtual;
 
     @JsonProperty("unidade_medida")
     @NotNull(message = "Obrigatório preenchimeto do campo 'unidade_medida' no body")
@@ -29,7 +29,7 @@ public class ProdutoCadastroDTO {
     @NotNull(message = "Obrigatório preenchimeto do campo 'ativo' no body")
     private Boolean ativo;
 
-    public ProdutoCadastroDTO(String nome, BigDecimal precoCusto, BigDecimal precoVenda, Integer estoqueAtual, String unidadeMedida, Boolean ativo) {
+    public ProdutoCadastroDTO(String nome, BigDecimal precoCusto, BigDecimal precoVenda, Float estoqueAtual, String unidadeMedida, Boolean ativo) {
         this.nome = nome;
         this.precoCusto = precoCusto;
         this.precoVenda = precoVenda;
@@ -64,11 +64,11 @@ public class ProdutoCadastroDTO {
         this.precoVenda = precoVenda;
     }
 
-    public Integer getEstoqueAtual() {
+    public Float getEstoqueAtual() {
         return estoqueAtual;
     }
 
-    public void setEstoqueAtual(Integer estoqueAtual) {
+    public void setEstoqueAtual(Float estoqueAtual) {
         this.estoqueAtual = estoqueAtual;
     }
 
