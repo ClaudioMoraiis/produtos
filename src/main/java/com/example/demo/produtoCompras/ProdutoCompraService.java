@@ -4,8 +4,12 @@ import com.example.demo.cliente.ClienteEntity;
 import com.example.demo.cliente.ClienteRepository;
 import com.example.demo.compra.CompraEntity;
 import com.example.demo.compra.CompraRepository;
+import com.example.demo.enums.OrigemMovimentoEnum;
+import com.example.demo.enums.TipoMovimentoEnum;
 import com.example.demo.produto.ProdutoEntity;
+import com.example.demo.produto.ProdutoMapper;
 import com.example.demo.produto.ProdutoRepository;
+import com.example.demo.produtoMovimentacao.ProdutoMovimentacaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +32,15 @@ public class ProdutoCompraService {
 
     @Autowired
     private ProdutoRepository fProdutoRepositoy;
+
+    @Autowired
+    private ProdutoCompraMapper fMapper;
+
+    @Autowired
+    private ProdutoMapper fProdutoMapper;
+
+    @Autowired
+    private ProdutoMovimentacaoRepository fProdutoMovimentacaoRepository;
 
     public ResponseEntity<?> cadastrar(CompraRequestDTO mCompraRequestDTO){
         Optional<ClienteEntity> mClienteEntity = fClienteRepository.findById(mCompraRequestDTO.getId_cliente());
@@ -64,19 +77,12 @@ public class ProdutoCompraService {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum produto localizado com o ID: " + mProdutoCompraDTO.getId_produto());
                 }
 
-                ProdutoComprasEntity mProdutoComprasEntity = new ProdutoComprasEntity();
-                mProdutoComprasEntity.setProduto(mProdutoEntity);
-                mProdutoComprasEntity.setQuantidade(mProdutoCompraDTO.getQuantidade());
-                mProdutoComprasEntity.setPrecoUnitario(mProdutoCompraDTO.getPreco_unitario());
-                mProdutoComprasEntity.setCompra(mCompraEntity);
-
-                BigDecimal mQuantidade = new BigDecimal(mProdutoCompraDTO.getQuantidade());
-                BigDecimal mPrecoUnitario = mProdutoCompraDTO.getPreco_unitario();
-                BigDecimal mSubTotal = mPrecoUnitario.multiply(mQuantidade);
-
-                mProdutoComprasEntity.setSubTotal(mSubTotal);
-
-                fRepository.save(mProdutoComprasEntity);
+                fRepository.save(fMapper.preencherProdutoCompra(mProdutoCompraDTO, mProdutoEntity, mCompraEntity));
+                fProdutoMovimentacaoRepository.save(fProdutoMapper.preencherProdutoMovEntity(
+                        mProdutoEntity,
+                        TipoMovimentoEnum.ENTRADA,
+                        OrigemMovimentoEnum.COMPRA)
+                );
             }
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro ao inserir item compra\n" + e.getMessage());
