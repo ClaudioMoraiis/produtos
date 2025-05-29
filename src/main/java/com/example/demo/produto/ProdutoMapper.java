@@ -25,7 +25,7 @@ public class ProdutoMapper{
     }
 
     public ProdutoMovimentacaoEntity preencherProdutoMovEntity(ProdutoEntity mProdutoEntity, TipoMovimentoEnum mTipoMovimentoEnum,
-      OrigemMovimentoEnum mOrigemMovimentoEnum)
+      OrigemMovimentoEnum mOrigemMovimentoEnum, Long mIdOrigem)
     {
         ProdutoMovimentacaoEntity mProdutoMovimentacaoEntity = new ProdutoMovimentacaoEntity();
         mProdutoMovimentacaoEntity.setProduto(mProdutoEntity);
@@ -33,7 +33,7 @@ public class ProdutoMapper{
         mProdutoMovimentacaoEntity.setQuantidade(mProdutoEntity.getEstoqueAtual());
         mProdutoMovimentacaoEntity.setOrigemMovimentoEnum(mOrigemMovimentoEnum);
         mProdutoMovimentacaoEntity.setDataMovimento(LocalDate.now());
-        mProdutoMovimentacaoEntity.setIdOrigem(null);
+        mProdutoMovimentacaoEntity.setIdOrigem(mIdOrigem);
 
         return mProdutoMovimentacaoEntity;
     }
