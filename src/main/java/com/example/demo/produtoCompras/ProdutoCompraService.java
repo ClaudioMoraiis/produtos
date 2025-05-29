@@ -31,7 +31,7 @@ public class ProdutoCompraService {
     private ClienteRepository fClienteRepository;
 
     @Autowired
-    private ProdutoRepository fProdutoRepositoy;
+    private ProdutoRepository fProdutoRepository;
 
     @Autowired
     private ProdutoCompraMapper fMapper;
@@ -50,7 +50,7 @@ public class ProdutoCompraService {
 
         BigDecimal mTotalCompra = BigDecimal.ZERO;
         for (ProdutoCompraDTO mProdutoDTO : mCompraRequestDTO.getLista_produto()){
-            Optional<ProdutoEntity> mProdutoEntityOpt = fProdutoRepositoy.findById(mProdutoDTO.getId_produto());
+            Optional<ProdutoEntity> mProdutoEntityOpt = fProdutoRepository.findById(mProdutoDTO.getId_produto());
             if (mProdutoEntityOpt.isEmpty()){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum produto localizado com o ID: " + mProdutoDTO.getId_produto());
             }
@@ -72,16 +72,18 @@ public class ProdutoCompraService {
 
         try {
             for (ProdutoCompraDTO mProdutoCompraDTO : mCompraRequestDTO.getLista_produto()){
-                ProdutoEntity mProdutoEntity = fProdutoRepositoy.findById(mProdutoCompraDTO.getId_produto()).get();
+                ProdutoEntity mProdutoEntity = fProdutoRepository.findById(mProdutoCompraDTO.getId_produto()).get();
                 if (mClienteEntity == null){
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum produto localizado com o ID: " + mProdutoCompraDTO.getId_produto());
                 }
 
                 fRepository.save(fMapper.preencherProdutoCompra(mProdutoCompraDTO, mProdutoEntity, mCompraEntity));
+                fProdutoRepository.ajustarSaldo(mProdutoCompraDTO.getQuantidade(), mProdutoCompraDTO.getId_produto());
                 fProdutoMovimentacaoRepository.save(fProdutoMapper.preencherProdutoMovEntity(
                         mProdutoEntity,
                         TipoMovimentoEnum.ENTRADA,
-                        OrigemMovimentoEnum.COMPRA)
+                        OrigemMovimentoEnum.COMPRA,
+                        mCompraEntity.getId())
                 );
             }
         } catch (Exception e){

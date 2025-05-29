@@ -34,7 +34,8 @@ public class ProdutoService {
             fProdutoMovimentacaoRepository.save(fProdutoMapper.preencherProdutoMovEntity(
                     mProdutoEntity,
                     TipoMovimentoEnum.ENTRADA,
-                    OrigemMovimentoEnum.CADASTRO));
+                    OrigemMovimentoEnum.CADASTRO,
+                    null));
 
             return ResponseEntity.status(HttpStatus.OK).body("Produto cadastrado com sucesso");
         } catch (Exception e) {

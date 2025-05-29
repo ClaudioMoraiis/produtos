@@ -12,7 +12,7 @@ public class ProdutoCompraDTO {
 
     @JsonProperty("quantidade")
     @NotNull(message = "Campo 'quantidade' não informado no body, verifique")
-    private Long quantidade;
+    private Float quantidade;
 
     @JsonProperty("preco_unitario")
     @NotNull(message = "Campo 'preco_unitario' não informado no body, verifique")
@@ -20,7 +20,7 @@ public class ProdutoCompraDTO {
 
     public ProdutoCompraDTO(){}
 
-    public ProdutoCompraDTO(Long id_produto, Long quantidade, BigDecimal preco_unitario) {
+    public ProdutoCompraDTO(Long id_produto, Float quantidade, BigDecimal preco_unitario) {
         this.id_produto = id_produto;
         this.quantidade = quantidade;
         this.preco_unitario = preco_unitario;
@@ -34,11 +34,11 @@ public class ProdutoCompraDTO {
         this.id_produto = id_produto;
     }
 
-    public Long getQuantidade() {
+    public Float getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(Long quantidade) {
+    public void setQuantidade(Float quantidade) {
         this.quantidade = quantidade;
     }
 
