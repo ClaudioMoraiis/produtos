@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 public interface ProdutoRepository extends JpaRepository<ProdutoEntity, Long> {
     ProdutoEntity findByNome(String nome);
 
@@ -13,4 +15,9 @@ public interface ProdutoRepository extends JpaRepository<ProdutoEntity, Long> {
     @Transactional
     @Query("UPDATE ProdutoEntity p SET p.estoqueAtual = p.estoqueAtual + :mSaldo WHERE (p.id = :mId)")
     void ajustarSaldo(@Param("mSaldo") Float mSaldo, @Param("mId") Long mId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProdutoEntity p SET p.precoCusto = :mPrecoCusto WHERE (p.id = :mId)")
+    void ajustarPrecoCusto(@Param("mPrecoCusto") BigDecimal mPrecoCusto, @Param("mId") Long mId);
 }

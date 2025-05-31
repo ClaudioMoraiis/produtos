@@ -6,17 +6,22 @@ import com.example.demo.compra.CompraEntity;
 import com.example.demo.compra.CompraRepository;
 import com.example.demo.enums.OrigemMovimentoEnum;
 import com.example.demo.enums.TipoMovimentoEnum;
+import com.example.demo.exceptions.ProdutoNaoEncontradoException;
 import com.example.demo.produto.ProdutoEntity;
 import com.example.demo.produto.ProdutoMapper;
 import com.example.demo.produto.ProdutoRepository;
+import com.example.demo.produtoMovimentacao.ProdutoMovimentacaoEntity;
 import com.example.demo.produtoMovimentacao.ProdutoMovimentacaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,54 +47,89 @@ public class ProdutoCompraService {
     @Autowired
     private ProdutoMovimentacaoRepository fProdutoMovimentacaoRepository;
 
+    @Transactional
     public ResponseEntity<?> cadastrar(CompraRequestDTO mCompraRequestDTO){
         Optional<ClienteEntity> mClienteEntity = fClienteRepository.findById(mCompraRequestDTO.getId_cliente());
         if (mClienteEntity == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum cliente localizado com esse id");
         }
 
-        BigDecimal mTotalCompra = BigDecimal.ZERO;
-        for (ProdutoCompraDTO mProdutoDTO : mCompraRequestDTO.getLista_produto()){
-            Optional<ProdutoEntity> mProdutoEntityOpt = fProdutoRepository.findById(mProdutoDTO.getId_produto());
-            if (mProdutoEntityOpt.isEmpty()){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum produto localizado com o ID: " + mProdutoDTO.getId_produto());
-            }
-
-            BigDecimal mSubTotal = mProdutoDTO.getPreco_unitario().multiply(BigDecimal.valueOf(mProdutoDTO.getQuantidade()));
-            mTotalCompra = mTotalCompra.add(mSubTotal);
-        }
-
-        CompraEntity mCompraEntity = new CompraEntity();
-        try {
-            mCompraEntity.setCliente(mClienteEntity.orElse(null));
-            mCompraEntity.setData(LocalDate.now());
-            mCompraEntity.setTotal(mTotalCompra);
-
-            fCompraRepository.save(mCompraEntity);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro ao inserir compra\n" + e.getMessage());
+        CompraEntity mCompraEntity;
+        try{
+            mCompraEntity = salvarCompra(mClienteEntity.orElse(null), mCompraRequestDTO);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro ao cadastrar a compra\n" + e.getMessage());
         }
 
         try {
+            List<ProdutoComprasEntity> mProdutosCompras = new ArrayList<>();
+            List<ProdutoMovimentacaoEntity> mProdutoMovimentacoes = new ArrayList<>();
+
             for (ProdutoCompraDTO mProdutoCompraDTO : mCompraRequestDTO.getLista_produto()){
-                ProdutoEntity mProdutoEntity = fProdutoRepository.findById(mProdutoCompraDTO.getId_produto()).get();
-                if (mClienteEntity == null){
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum produto localizado com o ID: " + mProdutoCompraDTO.getId_produto());
-                }
+                Optional<ProdutoEntity> produtoOpt = fProdutoRepository.findById(mProdutoCompraDTO.getId_produto());
+                ProdutoEntity mProdutoEntity = produtoOpt.get();
 
-                fRepository.save(fMapper.preencherProdutoCompra(mProdutoCompraDTO, mProdutoEntity, mCompraEntity));
-                fProdutoRepository.ajustarSaldo(mProdutoCompraDTO.getQuantidade(), mProdutoCompraDTO.getId_produto());
-                fProdutoMovimentacaoRepository.save(fProdutoMapper.preencherProdutoMovEntity(
+                ProdutoComprasEntity mItens = preencherListaProdutosCompras(mCompraEntity, mProdutoEntity, mProdutoCompraDTO);
+                mProdutosCompras.add(mItens);
+
+                mProdutoMovimentacoes.add(fProdutoMapper.preencherProdutoMovEntity(
                         mProdutoEntity,
                         TipoMovimentoEnum.ENTRADA,
                         OrigemMovimentoEnum.COMPRA,
-                        mCompraEntity.getId())
+                        mCompraEntity.getId(),
+                        mProdutoCompraDTO.getQuantidade())
                 );
+
+                fProdutoRepository.ajustarSaldo(mProdutoCompraDTO.getQuantidade(), mProdutoCompraDTO.getId_produto());
+                fProdutoRepository.ajustarPrecoCusto(mProdutoCompraDTO.getPreco_unitario(), mProdutoCompraDTO.getId_produto());
             }
+
+            fRepository.saveAll(mProdutosCompras);
+            fProdutoMovimentacaoRepository.saveAll(mProdutoMovimentacoes);
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro ao inserir item compra\n" + e.getMessage());
         }
 
         return ResponseEntity.status(HttpStatus.OK).body("Compra inserida com sucesso");
     }
+
+    public CompraEntity salvarCompra(ClienteEntity mEntity, CompraRequestDTO mCompraRequestDTO){
+        BigDecimal mTotal = BigDecimal.ZERO;
+
+        for (ProdutoCompraDTO mProdutoDTO : mCompraRequestDTO.getLista_produto()) {
+            Optional<ProdutoEntity> produtoOpt = fProdutoRepository.findById(mProdutoDTO.getId_produto());
+            if (produtoOpt.isEmpty()) {
+                throw new ProdutoNaoEncontradoException(mProdutoDTO.getId_produto());
+            }
+
+            BigDecimal subTotal = mProdutoDTO.getPreco_unitario().multiply(BigDecimal.valueOf(mProdutoDTO.getQuantidade()));
+            mTotal = mTotal.add(subTotal);
+        }
+
+        CompraEntity mCompraEntity = new CompraEntity();
+
+        mCompraEntity.setCliente(mEntity);
+        mCompraEntity.setData(LocalDate.now());
+        mCompraEntity.setTotal(mTotal);
+
+        fCompraRepository.save(mCompraEntity);
+        return mCompraEntity;
+    };
+
+    public ProdutoComprasEntity preencherListaProdutosCompras(
+        CompraEntity mCompraEntity, ProdutoEntity mProdutoEntity,
+        ProdutoCompraDTO mProdutoCompraDTO
+    ){
+        List<ProdutoComprasEntity> mProdutosCompras = new ArrayList<>();
+
+        BigDecimal mQuantidade = new BigDecimal(mProdutoCompraDTO.getQuantidade());
+        BigDecimal mPrecoUnitario = mProdutoCompraDTO.getPreco_unitario();
+        BigDecimal mSubTotal = mPrecoUnitario.multiply(mQuantidade);
+
+        return new ProdutoComprasEntity(
+                mCompraEntity, mProdutoEntity, mProdutoCompraDTO.getQuantidade(),
+                mProdutoCompraDTO.getPreco_unitario(), mSubTotal
+        );
+    }
+
 }
