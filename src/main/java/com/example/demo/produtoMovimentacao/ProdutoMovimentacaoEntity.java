@@ -47,6 +47,16 @@ public class ProdutoMovimentacaoEntity {
         this.dataMovimento = dataMovimento;
     }
 
+    public ProdutoMovimentacaoEntity(ProdutoEntity produto, TipoMovimentoEnum tipoMovimento, Float quantidade,
+                                     OrigemMovimentoEnum origemMovimentoEnum, Long idOrigem, LocalDate dataMovimento) {
+        this.produto = produto;
+        this.tipoMovimento = tipoMovimento;
+        this.quantidade = quantidade;
+        this.origemMovimentoEnum = origemMovimentoEnum;
+        this.idOrigem = idOrigem;
+        this.dataMovimento = dataMovimento;
+    }
+
     public ProdutoMovimentacaoEntity(){};
 
     public Long getId() {

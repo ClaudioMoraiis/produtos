@@ -35,7 +35,8 @@ public class ProdutoService {
                     mProdutoEntity,
                     TipoMovimentoEnum.ENTRADA,
                     OrigemMovimentoEnum.CADASTRO,
-                    null));
+                    null,
+                    mProdutoEntity.getEstoqueAtual()));
 
             return ResponseEntity.status(HttpStatus.OK).body("Produto cadastrado com sucesso");
         } catch (Exception e) {
