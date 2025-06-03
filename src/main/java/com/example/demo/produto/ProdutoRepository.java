@@ -20,4 +20,14 @@ public interface ProdutoRepository extends JpaRepository<ProdutoEntity, Long> {
     @Transactional
     @Query("UPDATE ProdutoEntity p SET p.precoCusto = :mPrecoCusto WHERE (p.id = :mId)")
     void ajustarPrecoCusto(@Param("mPrecoCusto") BigDecimal mPrecoCusto, @Param("mId") Long mId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProdutoEntity p SET p.estoqueAtual = p.estoqueAtual - :mQtdVenda WHERE (p.id = :mId)")
+    void diminuirSaldo(@Param("mQtdVenda") Float mQtdVenda, @Param("mId") Long mId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProdutoEntity p SET p.precoVenda = :mPrecoVenda WHERE (p.id = :mId)")
+    void ajustarPrecoVenda(@Param("mPrecoVenda") BigDecimal mPrecoVenda, @Param("mId") Long mId);
 }

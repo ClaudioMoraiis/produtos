@@ -1,17 +1,17 @@
 package com.example.demo.enums;
 
 public enum StatusVendaEnum {
-    CONCLUIDA(1),
-    CANCELADA(2),
-    PENDENTE(3);
+    CONCLUIDA("CONCLUIDA"),
+    CANCELADA("CANCELADA"),
+    PENDENTE("PENDENTE");
 
-    private Integer status;
+    private String status;
 
-    StatusVendaEnum(Integer status) {
+    StatusVendaEnum(String status) {
         this.status = status;
     }
 
-    public Integer getStatus() {
+    public String getStatus() {
         return status;
     }
 }

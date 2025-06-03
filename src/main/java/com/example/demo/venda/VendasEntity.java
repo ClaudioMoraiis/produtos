@@ -26,7 +26,7 @@ public class VendasEntity {
     private BigDecimal total;
 
     @Column(name = "ven_status")
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private StatusVendaEnum status;
 
     public VendasEntity(Long id, ClienteEntity cliente, LocalDate dataVenda, BigDecimal total, StatusVendaEnum status) {
@@ -47,11 +47,11 @@ public class VendasEntity {
         this.id = id;
     }
 
-    public ClienteEntity getIdCliente() {
+    public ClienteEntity getCliente() {
         return cliente;
     }
 
-    public void setIdCliente(ClienteEntity cliente) {
+    public void setCliente(ClienteEntity cliente) {
         this.cliente = cliente;
     }
 

@@ -39,6 +39,14 @@ public class ProdutoVendasEntity {
         this.subTotal = subTotal;
     }
 
+    public ProdutoVendasEntity(VendasEntity venda, ProdutoEntity produto, Float quantidade, BigDecimal precoUnitario, BigDecimal subTotal) {
+        this.venda = venda;
+        this.produto = produto;
+        this.quantidade = quantidade;
+        this.precoUnitario = precoUnitario;
+        this.subTotal = subTotal;
+    }
+
     public ProdutoVendasEntity(){};
 
     public Long getId() {
