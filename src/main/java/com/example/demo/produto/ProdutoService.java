@@ -69,4 +69,13 @@ public class ProdutoService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Falha ao alterar" + e.getMessage());
         }
     }
+
+    public ResponseEntity<?> buscarPorId(Long mId){
+        Optional<ProdutoEntity> mProdutoEntity = fRepository.findById(mId);
+        if (mProdutoEntity.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum produto localizado com esse id");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(mProdutoEntity);
+    }
 }

@@ -20,4 +20,9 @@ public class ProdutoController {
     public ResponseEntity<?> alterar(@RequestBody ProdutoAlterarDTO mProdutoAlterarDTO, @PathVariable Long id){
         return fService.alterar(mProdutoAlterarDTO, id);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id){
+        return fService.buscarPorId(id);
+    }
 }
