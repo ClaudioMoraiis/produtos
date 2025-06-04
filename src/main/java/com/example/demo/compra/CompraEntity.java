@@ -1,6 +1,7 @@
 package com.example.demo.compra;
 
 import com.example.demo.cliente.ClienteEntity;
+import com.example.demo.enums.StatusCompraEnum;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -24,11 +25,16 @@ public class CompraEntity {
     @Column(name = "com_total")
     private BigDecimal total;
 
-    public CompraEntity(Long id, ClienteEntity cliente, LocalDate data, BigDecimal total) {
+    @Column(name = "com_status")
+    @Enumerated(EnumType.STRING)
+    private StatusCompraEnum status = StatusCompraEnum.PENDENTE;
+
+    public CompraEntity(Long id, ClienteEntity cliente, LocalDate data, BigDecimal total, StatusCompraEnum status) {
         this.id = id;
         this.cliente = cliente;
         this.data = data;
         this.total = total;
+        this.status = status;
     }
 
     public CompraEntity(){};
@@ -65,11 +71,19 @@ public class CompraEntity {
         this.total = total;
     }
 
+    public StatusCompraEnum getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusCompraEnum status) {
+        this.status = status;
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (!(o instanceof CompraEntity that)) return false;
 
-        return cliente.equals(that.cliente) && data.equals(that.data) && total.equals(that.total);
+        return cliente.equals(that.cliente) && data.equals(that.data) && total.equals(that.total) && status.equals(that.status);
     }
 
     @Override
@@ -77,6 +91,7 @@ public class CompraEntity {
         int result = cliente.hashCode();
         result = 31 * result + data.hashCode();
         result = 31 * result + total.hashCode();
+        result = 31 * result + (status != null ? status.hashCode() : 0);
         return result;
     }
 
@@ -87,8 +102,7 @@ public class CompraEntity {
                 ", cliente=" + cliente +
                 ", data=" + data +
                 ", total=" + total +
+                ", status=" + status +
                 '}';
     }
-
-
 }
