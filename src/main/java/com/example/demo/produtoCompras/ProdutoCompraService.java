@@ -120,8 +120,6 @@ public class ProdutoCompraService {
         CompraEntity mCompraEntity, ProdutoEntity mProdutoEntity,
         ProdutoCompraDTO mProdutoCompraDTO
     ){
-        List<ProdutoComprasEntity> mProdutosCompras = new ArrayList<>();
-
         BigDecimal mQuantidade = new BigDecimal(mProdutoCompraDTO.getQuantidade());
         BigDecimal mPrecoUnitario = mProdutoCompraDTO.getPreco_unitario();
         BigDecimal mSubTotal = mPrecoUnitario.multiply(mQuantidade);

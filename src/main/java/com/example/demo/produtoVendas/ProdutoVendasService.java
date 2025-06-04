@@ -54,7 +54,15 @@ public class ProdutoVendasService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nenhum cliente localizado com esse id");
         }
 
-        //TODO: Adicionar validação para ver se o status está correto(PENDENTE, CONCLUIDA, CANCELADA)
+        String mStatus = mDTO.getStatus().toUpperCase();
+        if (!(mStatus == null) && (mStatus.equals(StatusVendaEnum.CANCELADA.name())))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Não é possível usar o status CANCELADA no cadastro da venda.");
+
+        try{
+            StatusVendaEnum.valueOf(mStatus);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Status inválido. Deve ser PENDENTE ou CONCLUIDA.");
+        }
 
         VendasEntity mVendasEntity;
         try {
@@ -111,6 +119,7 @@ public class ProdutoVendasService {
         mVendasEntity.setCliente(mCliente);
         mVendasEntity.setDataVenda(LocalDate.now());
         mVendasEntity.setTotal(mTotal);
+        mVendasEntity.setStatus(StatusVendaEnum.valueOf(mVendaRequestDTO.getStatus().toUpperCase()));
 
         fRepository.save(mVendasEntity);
         return mVendasEntity;
