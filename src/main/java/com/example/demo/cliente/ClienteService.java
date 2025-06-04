@@ -32,4 +32,8 @@ public class ClienteService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro ao cadastrar\n" + e.getMessage());
         }
     }
+
+    public ResponseEntity<?> listarClientes(){
+        return ResponseEntity.status(HttpStatus.OK).body(fRepository.findAll());
+    }
 }

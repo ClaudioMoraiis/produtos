@@ -15,4 +15,9 @@ public class ClienteController {
     public ResponseEntity<?> cadastrar(@RequestBody @Valid ClienteDTO mClienteDTO){
         return fService.cadastrar(mClienteDTO);
     }
+
+    @GetMapping("/clientes")
+    public ResponseEntity<?> listarClientes(){
+        return fService.listarClientes();
+    }
 }
