@@ -5,6 +5,7 @@ import com.example.demo.cliente.ClienteRepository;
 import com.example.demo.compra.CompraEntity;
 import com.example.demo.compra.CompraRepository;
 import com.example.demo.enums.OrigemMovimentoEnum;
+import com.example.demo.enums.StatusCompraEnum;
 import com.example.demo.enums.TipoMovimentoEnum;
 import com.example.demo.exceptions.ProdutoNaoEncontradoException;
 import com.example.demo.produto.ProdutoEntity;
@@ -52,6 +53,16 @@ public class ProdutoCompraService {
         Optional<ClienteEntity> mClienteEntity = fClienteRepository.findById(mCompraRequestDTO.getId_cliente());
         if (mClienteEntity == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum cliente localizado com esse id");
+        }
+
+        String mStatus = mCompraRequestDTO.getStatus().toUpperCase();
+        if (!(mStatus == null) && (mStatus.equals(StatusCompraEnum.CANCELADA.name())))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Não é possível usar o status CANCELADA no cadastro da compra.");
+
+        try{
+            StatusCompraEnum.valueOf(mStatus);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Status inválido. Deve ser PENDENTE ou CONCLUIDA.");
         }
 
         CompraEntity mCompraEntity;
@@ -111,6 +122,7 @@ public class ProdutoCompraService {
         mCompraEntity.setCliente(mEntity);
         mCompraEntity.setData(LocalDate.now());
         mCompraEntity.setTotal(mTotal);
+        mCompraEntity.setStatus(StatusCompraEnum.valueOf(mCompraRequestDTO.getStatus().toUpperCase()));
 
         fCompraRepository.save(mCompraEntity);
         return mCompraEntity;
