@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 
 public interface ProdutoRepository extends JpaRepository<ProdutoEntity, Long> {
-    ProdutoEntity findByNome(String nome);
+    ProdutoEntity findFirstByNomeAndAtivoTrue(String nome);
 
     @Modifying
     @Transactional
@@ -30,4 +30,9 @@ public interface ProdutoRepository extends JpaRepository<ProdutoEntity, Long> {
     @Transactional
     @Query("UPDATE ProdutoEntity p SET p.precoVenda = :mPrecoVenda WHERE (p.id = :mId)")
     void ajustarPrecoVenda(@Param("mPrecoVenda") BigDecimal mPrecoVenda, @Param("mId") Long mId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProdutoEntity p SET p.ativo = false WHERE (p.id = :mId)")
+    void inativar(@Param("mId") Long mId);
 }

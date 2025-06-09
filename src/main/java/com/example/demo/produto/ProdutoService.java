@@ -25,18 +25,21 @@ public class ProdutoService {
     private ProdutoMapper fProdutoMapper;
 
     public ResponseEntity<?> cadastrar(ProdutoCadastroDTO mProdutoCadastroDTO) {
-        if (fRepository.findByNome(mProdutoCadastroDTO.getNome()) != null){
+        ProdutoEntity mEntity = fRepository.findFirstByNomeAndAtivoTrue(mProdutoCadastroDTO.getNome());
+        if ((mEntity != null) && (mEntity.getAtivo())){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Já existe um produto com esse nome");
         }
         try {
             ProdutoEntity mProdutoEntity = fProdutoMapper.preencherProduto(mProdutoCadastroDTO);
             fRepository.save(mProdutoEntity);
-            fProdutoMovimentacaoRepository.save(fProdutoMapper.preencherProdutoMovEntity(
-                    mProdutoEntity,
-                    TipoMovimentoEnum.ENTRADA,
-                    OrigemMovimentoEnum.CADASTRO,
-                    null,
-                    mProdutoEntity.getEstoqueAtual()));
+
+            if (mProdutoCadastroDTO.getEstoqueAtual() != null)
+                fProdutoMovimentacaoRepository.save(fProdutoMapper.preencherProdutoMovEntity(
+                        mProdutoEntity,
+                        TipoMovimentoEnum.ENTRADA,
+                        OrigemMovimentoEnum.CADASTRO,
+                        null,
+                        mProdutoEntity.getEstoqueAtual()));
 
             return ResponseEntity.status(HttpStatus.OK).body("Produto cadastrado com sucesso");
         } catch (Exception e) {
@@ -77,5 +80,20 @@ public class ProdutoService {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(mProdutoEntity);
+    }
+
+    public ResponseEntity<?> deletar(Long mId){
+        Optional<ProdutoEntity> mProdutoEntity = fRepository.findById(mId);
+        if (mProdutoEntity.isEmpty() || !mProdutoEntity.get().getAtivo()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum produto localizado com esse id");
+        }
+
+        try {
+            fRepository.inativar(mProdutoEntity.get().getId());
+        } catch (RuntimeException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro ao inativar produto\n" + e.getMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body("Produto inativado com sucesso");
     }
 }

@@ -25,4 +25,9 @@ public class ProdutoController {
     public ResponseEntity<?> buscarPorId(@PathVariable Long id){
         return fService.buscarPorId(id);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletar(@PathVariable Long id){
+        return fService.deletar(id);
+    }
 }
