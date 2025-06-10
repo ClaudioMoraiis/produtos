@@ -15,7 +15,7 @@ public class VendasEntity {
     @Column(name = "ven_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ven_id_cliente", referencedColumnName = "cli_id", nullable = false)
     private ClienteEntity cliente;
 

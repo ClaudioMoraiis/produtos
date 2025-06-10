@@ -20,4 +20,9 @@ public class ClienteController {
     public ResponseEntity<?> listarClientes(){
         return fService.listarClientes();
     }
+
+    @GetMapping("/{id}/vendas")
+    public ResponseEntity<?> listarVendas(@PathVariable Long id){
+        return  fService.listarVendas(id);
+    }
 }
