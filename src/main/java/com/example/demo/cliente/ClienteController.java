@@ -25,4 +25,9 @@ public class ClienteController {
     public ResponseEntity<?> listarVendas(@PathVariable Long id){
         return  fService.listarVendas(id);
     }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<?> buscarPorEmail(@PathVariable String email){
+        return fService.buscarPorEmail(email);
+    }
 }

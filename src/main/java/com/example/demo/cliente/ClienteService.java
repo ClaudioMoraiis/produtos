@@ -28,6 +28,10 @@ public class ClienteService {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Já existe cliente cadastrado com esse documento");
             }
 
+            if (fRepository.getEmail(mClienteDTO.getEmail())){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Já existe cliente cadastrado com esse e-mail");
+            }
+
             String mDocumentoFormatado = mClienteDTO.getDocumento().replaceAll("[./-]", "");
             if ((mDocumentoFormatado.length() != 11) && (mDocumentoFormatado.length() != 14))
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Insira um documento válido");
@@ -59,5 +63,14 @@ public class ClienteService {
                 .toList();
 
         return ResponseEntity.status(HttpStatus.OK).body(mListaVendasDTO);
+    }
+
+    public ResponseEntity<?> buscarPorEmail(String mEmail){
+        Optional<ClienteEntity> mClienteEntity = fRepository.findByEmail(mEmail);
+        if (mClienteEntity.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nenhum cliente localizado com esse e-mail");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(mClienteEntity);
     }
 }
