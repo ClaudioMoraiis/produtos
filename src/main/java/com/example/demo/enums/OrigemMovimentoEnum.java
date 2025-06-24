@@ -4,7 +4,8 @@ public enum OrigemMovimentoEnum {
     VENDA("VENDA"),
     COMPRA("COMPRA"),
     AJUSTE("AJUSTE"),
-    CADASTRO("CADASTRO");
+    CADASTRO("CADASTRO"),
+    CANCELAMENTO_VENDA("CANCELAMENTO_VENDA");
 
     private String origemMovimentoEnum;
 
