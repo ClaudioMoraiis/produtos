@@ -1,5 +1,6 @@
 package com.example.demo.jwt;
 
+import com.example.demo.exceptionHandler.CustomAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,9 @@ public class SecutiryConfigurations {
     @Autowired
     SecurityFilter fSecurityFilter;
 
+    @Autowired
+    private CustomAuthenticationEntryPoint mCustomAuthenticationEntryPoint;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity mHttpSecurity) throws Exception{
         return mHttpSecurity
@@ -30,6 +34,9 @@ public class SecutiryConfigurations {
                 .authorizeHttpRequests(mAuthorize -> mAuthorize
                         .requestMatchers(HttpMethod.POST, "/user/login", "/user/register").permitAll()
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(mExeption -> mExeption
+                        .authenticationEntryPoint(mCustomAuthenticationEntryPoint)
                 )
                 .addFilterBefore(fSecurityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

@@ -25,6 +25,12 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest mRequest, HttpServletResponse mResponse, FilterChain mFilterChain) throws ServletException, IOException {
+        String mPath = mRequest.getRequestURI();
+        if (mPath.equals("/user/login") || mPath.equals("/user/register")){
+            mFilterChain.doFilter(mRequest, mResponse);
+            return;
+        }
+
         var mToken = this.recoverToken(mRequest);
         if (mToken != null){
             var mEmail = fTokenService.validateToken(mToken);
