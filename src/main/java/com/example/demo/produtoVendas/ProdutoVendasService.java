@@ -14,6 +14,7 @@ import com.example.demo.produtoCompras.ProdutoCompraDTO;
 import com.example.demo.produtoCompras.ProdutoComprasEntity;
 import com.example.demo.produtoMovimentacao.ProdutoMovimentacaoEntity;
 import com.example.demo.produtoMovimentacao.ProdutoMovimentacaoRepository;
+import com.example.demo.util.ResponseApiUtil;
 import com.example.demo.venda.VendasEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
@@ -21,12 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ProdutoVendasService {
@@ -48,9 +48,9 @@ public class ProdutoVendasService {
     @Autowired
     private ProdutoMovimentacaoRepository fProdutoMovimentacaoRepository;
 
-    public ResponseEntity<?> cadastrar(VendaRequestDTO mDTO){
+    public ResponseEntity<?> cadastrar(VendaRequestDTO mDTO) {
         Optional<ClienteEntity> mClienteEntity = fClienteRepository.findById(mDTO.getId_cliente());
-        if (mClienteEntity.isEmpty()){
+        if (mClienteEntity.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nenhum cliente localizado com esse id");
         }
 
@@ -58,7 +58,7 @@ public class ProdutoVendasService {
         if (!(mStatus == null) && (mStatus.equals(StatusVendaEnum.CANCELADA.name())))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Não é possível usar o status CANCELADA no cadastro da venda.");
 
-        try{
+        try {
             StatusVendaEnum.valueOf(mStatus);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Status inválido. Deve ser PENDENTE ou CONCLUIDA.");
@@ -71,7 +71,7 @@ public class ProdutoVendasService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro ao salvar venda: " + e.getMessage());
         }
 
-        try{
+        try {
             List<ProdutoVendasEntity> mProdutosVendas = new ArrayList<>();
             List<ProdutoMovimentacaoEntity> mProdutoMovimentacoes = new ArrayList<>();
 
@@ -90,8 +90,10 @@ public class ProdutoVendasService {
                         mProdutoVendaDTO.getQuantidade()
                 ));
 
-                fProdutoRepository.diminuirSaldo(mProdutoVendaDTO.getQuantidade(), mProdutoVendaDTO.getId_produto());
-                fProdutoRepository.ajustarPrecoVenda(mProdutoVendaDTO.getPreco_unitario(), mProdutoVendaDTO.getId_produto());
+                if (mStatus.equals(StatusVendaEnum.CONCLUIDA.name())) {
+                    fProdutoRepository.diminuirSaldo(mProdutoVendaDTO.getQuantidade(), mProdutoVendaDTO.getId_produto());
+                    fProdutoRepository.ajustarPrecoVenda(mProdutoVendaDTO.getPreco_unitario(), mProdutoVendaDTO.getId_produto());
+                }
             }
 
             fProdutoVendaRepository.saveAll(mProdutosVendas);
@@ -105,7 +107,7 @@ public class ProdutoVendasService {
     private VendasEntity salvarVenda(ClienteEntity mCliente, VendaRequestDTO mVendaRequestDTO) {
         BigDecimal mTotal = BigDecimal.ZERO;
 
-        for(ProdutoVendasDTO mProdutoDTO : mVendaRequestDTO.getLista_produto()) {
+        for (ProdutoVendasDTO mProdutoDTO : mVendaRequestDTO.getLista_produto()) {
             Optional<ProdutoEntity> mProdutoOpt = fProdutoRepository.findById(mProdutoDTO.getId_produto());
             if (mProdutoOpt.isEmpty()) {
                 throw new ProdutoNaoEncontradoException(mProdutoDTO.getId_produto());
@@ -128,7 +130,7 @@ public class ProdutoVendasService {
     public ProdutoVendasEntity preencherListaProdutosVendas(
             VendasEntity mVendaEntity, ProdutoEntity mProdutoEntity,
             ProdutoVendasDTO mProdutoVendaDTO
-    ){
+    ) {
         BigDecimal mQuantidade = new BigDecimal(mProdutoVendaDTO.getQuantidade());
         BigDecimal mPrecoUnitario = mProdutoVendaDTO.getPreco_unitario();
         BigDecimal mSubTotal = mPrecoUnitario.multiply(mQuantidade);
@@ -137,5 +139,51 @@ public class ProdutoVendasService {
                 mVendaEntity, mProdutoEntity, mProdutoVendaDTO.getQuantidade(),
                 mProdutoVendaDTO.getPreco_unitario(), mSubTotal
         );
+    }
+
+    public ResponseEntity<?> cancelar(Long mId) {
+        Optional<VendasEntity> mVendasEntity = fRepository.findById(mId);
+        if (mVendasEntity.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseApiUtil.response(
+                    "Erro", "Nenhuma venda localizada com esse id"));
+        }
+
+        if (mVendasEntity.get().getStatus().equals(StatusVendaEnum.CANCELADA)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseApiUtil.response(
+                    "Erro", "Venda já está cancelada"
+            ));
+        }
+
+        List<ProdutoMovimentacaoEntity> mProdutoMovimentacoes = new ArrayList<>();
+        if (mVendasEntity.get().getStatus().equals(StatusVendaEnum.CONCLUIDA)) {
+            List<ProdutoVendasEntity> mProdutoVendasEntity = fProdutoVendaRepository.getVendas(mId);
+
+            try {
+                for (ProdutoVendasEntity mVendas : mProdutoVendasEntity) {
+                    Optional<ProdutoEntity> mProdutoOpt = fProdutoRepository.findById(mVendas.getProduto().getId());
+                    ProdutoEntity mProdutoEntity = mProdutoOpt.get();
+
+                    fProdutoRepository.devolverSaldo(mVendas.getQuantidade(), mVendas.getProduto().getId());
+                    //Todo: precisa ver algo para atualizar o preco_venda, talvez criar um novo campo na produto
+                    // para armazenar ele e quando cancelar atualizar o preco atual com esse ultimo? Tenho que analisar algo.
+                    mProdutoMovimentacoes.add(fProdutoMapper.preencherProdutoMovEntity(
+                            mProdutoEntity,
+                            TipoMovimentoEnum.ENTRADA,
+                            OrigemMovimentoEnum.CANCELAMENTO_VENDA,
+                            mVendasEntity.get().getId(),
+                            mVendas.getQuantidade()
+                    ));
+                }
+
+                mVendasEntity.get().setStatus(StatusVendaEnum.CANCELADA);
+                fRepository.save(mVendasEntity.get());
+                fProdutoMovimentacaoRepository.saveAll(mProdutoMovimentacoes);
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body(ResponseApiUtil.response("Erro", e.getMessage()));
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseApiUtil.response(
+                "Sucesso", "Venda cancelada"));
     }
 }

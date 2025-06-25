@@ -2,10 +2,7 @@ package com.example.demo.produtoVendas;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/venda")
@@ -16,6 +13,11 @@ public class ProdutoVendasController {
     @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrar(@RequestBody VendaRequestDTO mDTO){
         return fService.cadastrar(mDTO);
+    }
+
+    @PostMapping("/{id}/cancelar")
+    public ResponseEntity<?> cancelar(@PathVariable Long id){
+        return fService.cancelar(id);
     }
 
 
