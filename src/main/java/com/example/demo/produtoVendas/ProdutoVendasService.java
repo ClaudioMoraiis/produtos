@@ -221,18 +221,18 @@ public class ProdutoVendasService {
         Map<Long, String> mMap = new HashMap<>();
         for (ProdutoVendasEntity mPv : mProdutoVendasEntity) {
             ProdutoEntity mProduto = mProdutosMap.get(mPv.getProduto().getId());
-            if (mProduto == null){
+            if (mProduto == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                        ResponseApiUtil.response("Erro", "Produto não encontrado: id " + + mPv.getProduto().getId())
+                        ResponseApiUtil.response("Erro", "Produto não encontrado: id " + +mPv.getProduto().getId())
                 );
             }
 
-            if (mPv.getQuantidade() > mProduto.getEstoqueAtual()){
+            if (mPv.getQuantidade() > mProduto.getEstoqueAtual()) {
                 mMap.put(mProduto.getId(), mProduto.getNome());
             }
         }
 
-        if (!mMap.isEmpty()){
+        if (!mMap.isEmpty()) {
             String mNomes = mMap.values().stream()
                     .map(mNome -> "- " + mNome)
                     .collect(Collectors.joining("\n"));
@@ -247,7 +247,7 @@ public class ProdutoVendasService {
         }
 
         List<ProdutoMovimentacaoEntity> mProdutoMovimentacoes = new ArrayList<>();
-        for (ProdutoVendasEntity mProdutosVendas : mProdutoVendasEntity){
+        for (ProdutoVendasEntity mProdutosVendas : mProdutoVendasEntity) {
             Optional<ProdutoEntity> mProdutoEntity = fProdutoRepository.findById(mProdutosVendas.getProduto().getId());
             mProdutoMovimentacoes.add(fProdutoMapper.preencherProdutoMovEntity(
                     mProdutoEntity.get(),
@@ -262,7 +262,7 @@ public class ProdutoVendasService {
             mVendasEntity.get().setStatus(StatusVendaEnum.CONCLUIDA);
             fRepository.save(mVendasEntity.get());
             fProdutoMovimentacaoRepository.saveAll(mProdutoMovimentacoes);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     ResponseApiUtil.response("Erro", "Falha ao confirmar a venda\n" + e.getMessage())
             );
