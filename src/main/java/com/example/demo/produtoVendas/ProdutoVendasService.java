@@ -27,6 +27,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class ProdutoVendasService {
@@ -185,5 +187,87 @@ public class ProdutoVendasService {
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseApiUtil.response(
                 "Sucesso", "Venda cancelada"));
+    }
+
+    public ResponseEntity<?> confirmar(Long mId) {
+        Optional<VendasEntity> mVendasEntity = fRepository.findById(mId);
+        if (mVendasEntity.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ResponseApiUtil.response("Erro", "Nenhuma venda localizada com esse id")
+            );
+        }
+
+        if (mVendasEntity.get().getStatus().equals(StatusVendaEnum.CANCELADA)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseApiUtil.response(
+                    "Erro", "Não foi possível confirmar, venda já cancelada")
+            );
+        } else if (mVendasEntity.get().getStatus().equals(StatusVendaEnum.CONCLUIDA)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseApiUtil.response(
+                    "Erro", "Não foi possível confirmar, venda já confirmada")
+            );
+        }
+
+        List<ProdutoVendasEntity> mProdutoVendasEntity = fProdutoVendaRepository.getVendas(mId);
+
+        List<Long> mIdsProdutos = mProdutoVendasEntity.stream()
+                .map(pv -> pv.getProduto().getId())
+                .collect(Collectors.toList());
+
+        List<ProdutoEntity> mProdutos = fProdutoRepository.findAllById(mIdsProdutos);
+
+        Map<Long, ProdutoEntity> mProdutosMap = mProdutos.stream()
+                .collect(Collectors.toMap(ProdutoEntity::getId, Function.identity()));
+
+        Map<Long, String> mMap = new HashMap<>();
+        for (ProdutoVendasEntity mPv : mProdutoVendasEntity) {
+            ProdutoEntity mProduto = mProdutosMap.get(mPv.getProduto().getId());
+            if (mProduto == null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        ResponseApiUtil.response("Erro", "Produto não encontrado: id " + + mPv.getProduto().getId())
+                );
+            }
+
+            if (mPv.getQuantidade() > mProduto.getEstoqueAtual()){
+                mMap.put(mProduto.getId(), mProduto.getNome());
+            }
+        }
+
+        if (!mMap.isEmpty()){
+            String mNomes = mMap.values().stream()
+                    .map(mNome -> "- " + mNome)
+                    .collect(Collectors.joining("\n"));
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    ResponseApiUtil.response(
+                            "Erro",
+                            "Não foi possível confirmar a compra, pois os seguintes produtos não possuem saldo suficiente em estoque:\n" +
+                                    mNomes
+                    )
+            );
+        }
+
+        List<ProdutoMovimentacaoEntity> mProdutoMovimentacoes = new ArrayList<>();
+        for (ProdutoVendasEntity mProdutosVendas : mProdutoVendasEntity){
+            Optional<ProdutoEntity> mProdutoEntity = fProdutoRepository.findById(mProdutosVendas.getProduto().getId());
+            mProdutoMovimentacoes.add(fProdutoMapper.preencherProdutoMovEntity(
+                    mProdutoEntity.get(),
+                    TipoMovimentoEnum.ENTRADA,
+                    OrigemMovimentoEnum.VENDA,
+                    mVendasEntity.get().getId(),
+                    mProdutosVendas.getQuantidade()
+            ));
+        }
+
+        try {
+            mVendasEntity.get().setStatus(StatusVendaEnum.CONCLUIDA);
+            fRepository.save(mVendasEntity.get());
+            fProdutoMovimentacaoRepository.saveAll(mProdutoMovimentacoes);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    ResponseApiUtil.response("Erro", "Falha ao confirmar a venda\n" + e.getMessage())
+            );
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseApiUtil.response("Ok", "Venda confirmada"));
     }
 }

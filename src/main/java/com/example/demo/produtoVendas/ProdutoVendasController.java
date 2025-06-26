@@ -20,5 +20,10 @@ public class ProdutoVendasController {
         return fService.cancelar(id);
     }
 
+    @PutMapping("/{id}/confirmar")
+    public ResponseEntity<?> confirmar(@PathVariable Long id){
+        return fService.confirmar(id);
+    }
+
 
 }
