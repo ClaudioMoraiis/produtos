@@ -51,7 +51,7 @@ public class ProdutoCompraService {
     @Transactional
     public ResponseEntity<?> cadastrar(CompraRequestDTO mCompraRequestDTO){
         Optional<ClienteEntity> mClienteEntity = fClienteRepository.findById(mCompraRequestDTO.getId_cliente());
-        if (mClienteEntity == null){
+        if (mClienteEntity.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum cliente localizado com esse id");
         }
 

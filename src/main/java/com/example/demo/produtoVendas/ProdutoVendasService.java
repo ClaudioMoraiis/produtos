@@ -2,7 +2,6 @@ package com.example.demo.produtoVendas;
 
 import com.example.demo.cliente.ClienteEntity;
 import com.example.demo.cliente.ClienteRepository;
-import com.example.demo.compra.CompraEntity;
 import com.example.demo.enums.OrigemMovimentoEnum;
 import com.example.demo.enums.StatusVendaEnum;
 import com.example.demo.enums.TipoMovimentoEnum;
@@ -10,20 +9,14 @@ import com.example.demo.exceptions.ProdutoNaoEncontradoException;
 import com.example.demo.produto.ProdutoEntity;
 import com.example.demo.produto.ProdutoMapper;
 import com.example.demo.produto.ProdutoRepository;
-import com.example.demo.produtoCompras.ProdutoCompraDTO;
-import com.example.demo.produtoCompras.ProdutoComprasEntity;
 import com.example.demo.produtoMovimentacao.ProdutoMovimentacaoEntity;
 import com.example.demo.produtoMovimentacao.ProdutoMovimentacaoRepository;
 import com.example.demo.util.ResponseApiUtil;
 import com.example.demo.venda.VendasEntity;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.PreUpdate;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -272,8 +265,8 @@ public class ProdutoVendasService {
     }
 
     public ResponseEntity<?> alterar(VendaRequestDTO mDto, Long mId){
-
-        //Todo as validações estão ok eu acho, agora falta ver para realmente alterar a compra
+        List<ProdutoVendasEntity> mProdutosVendas = new ArrayList<>();
+        List<ProdutoMovimentacaoEntity> mProdutoMovimentacaoEntity = new ArrayList<>();
 
         List<ProdutoVendasDTO> mListaProdutoVendasDTO = new ArrayList<>();
         for (ProdutoVendasDTO mProdutoVendasDTO : mDto.getLista_produto()){
@@ -290,7 +283,50 @@ public class ProdutoVendasService {
             return mValidacaoProduto;
         }
 
-        return null;
+        Optional<VendasEntity> mVendasEntity = fRepository.findById(mId);
+        Optional<ClienteEntity> mClienteEntity = fClienteRepository.findById(mDto.getId_cliente());
+        ProdutoVendasEntity mProdutoVendasEntity = new ProdutoVendasEntity();
+        try {
+            mVendasEntity.get().setCliente(mClienteEntity.get());
+            mVendasEntity.get().setStatus(StatusVendaEnum.valueOf(mDto.getStatus().toUpperCase()));
+            for (ProdutoVendasDTO mProdutoVendasDTO : mDto.getLista_produto()){
+                Optional<ProdutoEntity> mProdutoEntity = fProdutoRepository.findById(mProdutoVendasDTO.getId_produto());
+                mProdutoVendasEntity.setProduto(mProdutoEntity.get());
+                mProdutoVendasEntity.setQuantidade(mProdutoVendasDTO.getQuantidade());
+                mProdutoVendasEntity.setPrecoUnitario(mProdutoVendasDTO.getPreco_unitario());
+                mProdutoVendasEntity.setVenda(mVendasEntity.get());
+
+                BigDecimal mSubTotal = mProdutoVendasDTO.getPreco_unitario().multiply(BigDecimal.valueOf(mProdutoVendasDTO.getQuantidade()));
+                mSubTotal = mSubTotal.add(mSubTotal);
+                mProdutoVendasEntity.setSubTotal(mSubTotal);
+
+                mProdutosVendas.add(mProdutoVendasEntity);
+
+                if (mDto.getStatus().equals(StatusVendaEnum.CONCLUIDA.name())){
+                    fProdutoRepository.diminuirSaldo(mProdutoVendasDTO.getQuantidade(), mProdutoVendasDTO.getId_produto());
+                    fProdutoRepository.ajustarPrecoVenda(mProdutoVendasDTO.getPreco_unitario(), mProdutoVendasDTO.getId_produto());
+                }
+
+                mProdutoMovimentacaoEntity.add(fProdutoMapper.preencherProdutoMovEntity(
+                        mProdutoEntity.get(),
+                        TipoMovimentoEnum.SAIDA,
+                        OrigemMovimentoEnum.VENDA,
+                        mVendasEntity.get().getId(),
+                        mProdutoVendasDTO.getQuantidade()
+                ));
+            }
+
+            fRepository.save(mVendasEntity.get());
+            fProdutoVendaRepository.saveAll(mProdutosVendas);
+            fProdutoMovimentacaoRepository.saveAll(mProdutoMovimentacaoEntity);
+
+            return ResponseEntity.status(HttpStatus.OK).body(ResponseApiUtil.response(
+                    "Sucesso", "Venda alterada com sucesso"));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    ResponseApiUtil.response("Erro", "Erro ao alterar venda\n" + e.getMessage())
+            );
+        }
     }
 
     public ResponseEntity<?> validarRequest(List<ProdutoVendasDTO> mListaProdutoVendasDTO, Long mIdCliente, Long mIdVenda){
