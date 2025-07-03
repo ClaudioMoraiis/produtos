@@ -1,5 +1,6 @@
 package com.example.demo.produtoVendas;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,5 +26,8 @@ public class ProdutoVendasController {
         return fService.confirmar(id);
     }
 
-
+    @PutMapping("/{id}/alterar")
+    public ResponseEntity<?> alterar(@RequestBody @Valid VendaRequestDTO mDto, @PathVariable Long id){
+        return fService.alterar(mDto, id);
+    }
 }

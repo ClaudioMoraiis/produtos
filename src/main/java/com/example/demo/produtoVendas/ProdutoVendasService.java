@@ -17,6 +17,7 @@ import com.example.demo.produtoMovimentacao.ProdutoMovimentacaoRepository;
 import com.example.demo.util.ResponseApiUtil;
 import com.example.demo.venda.VendasEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -208,7 +209,6 @@ public class ProdutoVendasService {
         }
 
         List<ProdutoVendasEntity> mProdutoVendasEntity = fProdutoVendaRepository.getVendas(mId);
-
         List<Long> mIdsProdutos = mProdutoVendasEntity.stream()
                 .map(pv -> pv.getProduto().getId())
                 .collect(Collectors.toList());
@@ -270,4 +270,87 @@ public class ProdutoVendasService {
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseApiUtil.response("Ok", "Venda confirmada"));
     }
+
+    public ResponseEntity<?> alterar(VendaRequestDTO mDto, Long mId){
+
+        //Todo as validações estão ok eu acho, agora falta ver para realmente alterar a compra
+
+        List<ProdutoVendasDTO> mListaProdutoVendasDTO = new ArrayList<>();
+        for (ProdutoVendasDTO mProdutoVendasDTO : mDto.getLista_produto()){
+            mListaProdutoVendasDTO.add(mProdutoVendasDTO);
+        }
+
+        ResponseEntity<?> mValidacaoRequest = validarRequest(mListaProdutoVendasDTO, mDto.getId_cliente(), mId);
+        if (mValidacaoRequest != null){
+            return mValidacaoRequest;
+        }
+
+        ResponseEntity<?> mValidacaoProduto = validarProduto(mListaProdutoVendasDTO);
+        if (mValidacaoProduto != null){
+            return mValidacaoProduto;
+        }
+
+        return null;
+    }
+
+    public ResponseEntity<?> validarRequest(List<ProdutoVendasDTO> mListaProdutoVendasDTO, Long mIdCliente, Long mIdVenda){
+        Optional<VendasEntity> mVendasEntity = fRepository.findById(mIdVenda);
+        if (mVendasEntity.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ResponseApiUtil.response("Erro", "Nenhuma venda localizada com esse id"));
+        }
+
+        if (mVendasEntity.get().getStatus().equals(StatusVendaEnum.CANCELADA)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ResponseApiUtil.response("Erro", "Impossível alterar, a venda está cancelada"));
+        }
+
+        if (fClienteRepository.findById(mIdCliente).isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ResponseApiUtil.response("Erro", "Nenhum cliente localizado com esse id"));
+        }
+
+        return null;
+    }
+
+    public ResponseEntity<?> validarProduto(List<ProdutoVendasDTO> mProdutoVendasDTO) {
+        List<Long> mIds = mProdutoVendasDTO.stream()
+                .map(ProdutoVendasDTO::getId_produto)
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<ProdutoEntity> encontrados = fProdutoRepository.findAllById(mIds);
+        Set<Long> mIdsEncontrados = encontrados.stream()
+                .map(ProdutoEntity::getId)
+                .collect(Collectors.toSet());
+
+        List<Long> mIdsNaoEncontrados = mIds.stream()
+                .filter(mId -> !mIdsEncontrados.contains(mId))
+                .collect(Collectors.toList());
+
+        if (!mIdsNaoEncontrados.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ResponseApiUtil.response("Erro",
+                            "Produto(s) não localizado(s) com o(s) id(s): " + mIdsNaoEncontrados)
+            );
+        }
+
+        List<ProdutoEntity> mProdutosEncontrados  = fProdutoRepository.findAllById(mIdsEncontrados);
+        Map<String, Long> mProdutoSemEstoque = new HashMap<>();
+        for(ProdutoEntity mProduto : mProdutosEncontrados ){
+            if (mProduto.getEstoqueAtual() <= 0){
+                mProdutoSemEstoque.put(mProduto.getNome(), mProduto.getId());
+            }
+        }
+
+        if (!mProdutoSemEstoque.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ResponseApiUtil.response("Erro",
+                            "O(s) produto(s) de id: " + mProdutoSemEstoque.values() + " não possuem saldo em estoque")
+            );
+        }
+
+        return null;
+    }
+
 }
