@@ -285,6 +285,7 @@ public class ProdutoVendasService {
             return mValidacaoProduto;
         }
 
+        StatusVendaEnum mstatusAntigo = fRepository.getStatus(mId);
         Optional<VendasEntity> mVendasEntity = fRepository.findById(mId);
         Optional<ClienteEntity> mClienteEntity = fClienteRepository.findById(mDto.getId_cliente());
         try {
@@ -303,9 +304,12 @@ public class ProdutoVendasService {
 
                 mProdutosVendas.add(mProdutoVendasEntity);
 
+                StatusVendaEnum mNovoStatus = StatusVendaEnum.valueOf(mDto.getStatus().toUpperCase());
                 if (mDto.getStatus().equals(StatusVendaEnum.CONCLUIDA.name())){
                     fProdutoRepository.diminuirSaldo(mProdutoVendasDTO.getQuantidade(), mProdutoVendasDTO.getId_produto());
                     fProdutoRepository.ajustarPrecoVenda(mProdutoVendasDTO.getPreco_unitario(), mProdutoVendasDTO.getId_produto());
+                } else if (mNovoStatus == StatusVendaEnum.CANCELADA && mstatusAntigo == StatusVendaEnum.CONCLUIDA) {
+                    fProdutoRepository.devolverSaldo(mProdutoVendasDTO.getQuantidade(), mProdutoVendasDTO.getId_produto());
                 }
 
                 mProdutoMovimentacaoEntity.add(fProdutoMapper.preencherProdutoMovEntity(
@@ -316,6 +320,18 @@ public class ProdutoVendasService {
                         mProdutoVendasDTO.getQuantidade()
                 ));
             }
+
+            BigDecimal mTotal = BigDecimal.ZERO;
+            for (ProdutoVendasDTO mProdutoDTO : mDto.getLista_produto()) {
+                Optional<ProdutoEntity> mProdutoOpt = fProdutoRepository.findById(mProdutoDTO.getId_produto());
+                if (mProdutoOpt.isEmpty()) {
+                    throw new ProdutoNaoEncontradoException(mProdutoDTO.getId_produto());
+                }
+
+                BigDecimal mSubTotal = mProdutoDTO.getPreco_unitario().multiply(BigDecimal.valueOf(mProdutoDTO.getQuantidade()));
+                mTotal = mTotal.add(mSubTotal);
+            }
+            mVendasEntity.get().setTotal(mTotal);
 
             fRepository.save(mVendasEntity.get());
             fProdutoVendaRepository.deleteByVendaId(mId);
