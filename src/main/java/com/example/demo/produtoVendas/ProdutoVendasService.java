@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -264,6 +265,7 @@ public class ProdutoVendasService {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseApiUtil.response("Ok", "Venda confirmada"));
     }
 
+    @Transactional
     public ResponseEntity<?> alterar(VendaRequestDTO mDto, Long mId){
         List<ProdutoVendasEntity> mProdutosVendas = new ArrayList<>();
         List<ProdutoMovimentacaoEntity> mProdutoMovimentacaoEntity = new ArrayList<>();
@@ -285,11 +287,11 @@ public class ProdutoVendasService {
 
         Optional<VendasEntity> mVendasEntity = fRepository.findById(mId);
         Optional<ClienteEntity> mClienteEntity = fClienteRepository.findById(mDto.getId_cliente());
-        ProdutoVendasEntity mProdutoVendasEntity = new ProdutoVendasEntity();
         try {
             mVendasEntity.get().setCliente(mClienteEntity.get());
             mVendasEntity.get().setStatus(StatusVendaEnum.valueOf(mDto.getStatus().toUpperCase()));
             for (ProdutoVendasDTO mProdutoVendasDTO : mDto.getLista_produto()){
+                ProdutoVendasEntity mProdutoVendasEntity = new ProdutoVendasEntity();
                 Optional<ProdutoEntity> mProdutoEntity = fProdutoRepository.findById(mProdutoVendasDTO.getId_produto());
                 mProdutoVendasEntity.setProduto(mProdutoEntity.get());
                 mProdutoVendasEntity.setQuantidade(mProdutoVendasDTO.getQuantidade());
@@ -297,7 +299,6 @@ public class ProdutoVendasService {
                 mProdutoVendasEntity.setVenda(mVendasEntity.get());
 
                 BigDecimal mSubTotal = mProdutoVendasDTO.getPreco_unitario().multiply(BigDecimal.valueOf(mProdutoVendasDTO.getQuantidade()));
-                mSubTotal = mSubTotal.add(mSubTotal);
                 mProdutoVendasEntity.setSubTotal(mSubTotal);
 
                 mProdutosVendas.add(mProdutoVendasEntity);
@@ -317,6 +318,7 @@ public class ProdutoVendasService {
             }
 
             fRepository.save(mVendasEntity.get());
+            fProdutoVendaRepository.deleteByVendaId(mId);
             fProdutoVendaRepository.saveAll(mProdutosVendas);
             fProdutoMovimentacaoRepository.saveAll(mProdutoMovimentacaoEntity);
 
