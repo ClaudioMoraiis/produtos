@@ -30,4 +30,9 @@ public class ClienteController {
     public ResponseEntity<?> buscarPorEmail(@PathVariable String email){
         return fService.buscarPorEmail(email);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> alterar(@RequestBody ClienteDTO mDto, @PathVariable Long id){
+        return fService.alterar(mDto, id);
+    }
 }

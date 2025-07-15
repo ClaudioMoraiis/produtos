@@ -14,4 +14,5 @@ public interface ClienteDados {
     String getEstado();
     String getCep();
     Boolean getAtivo();
+    String getComplemento();
 }

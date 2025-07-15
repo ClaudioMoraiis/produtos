@@ -3,6 +3,7 @@ package com.example.demo.cliente;
 import com.example.demo.enums.StatusVendaEnum;
 import com.example.demo.produtoVendas.VendaRepository;
 import com.example.demo.produtoVendas.VendasDTO;
+import com.example.demo.util.ResponseApiUtil;
 import com.example.demo.util.Util;
 import com.example.demo.venda.VendasEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,5 +73,31 @@ public class ClienteService {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(mClienteEntity);
+    }
+
+    public ResponseEntity<?> alterar(ClienteDTO mDto, Long mId){
+        Optional<ClienteEntity> mClienteEntity = fRepository.findById(mId);
+        if (mClienteEntity.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ResponseApiUtil.response("Erro", "Nenhum cliente encontrado com esse id")
+            );
+        }
+
+        String mDocumentoFormatado = mDto.getDocumento().replaceAll("[./-]", "");
+        if ((mDocumentoFormatado.length() != 11) && (mDocumentoFormatado.length() != 14))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    ResponseApiUtil.response("Erro", "Insira um documento válido")
+            );
+
+        if (mDto.getTelefone().trim().replaceAll("[-/()]", "").length() != 11){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    ResponseApiUtil.response("Erro", "\"Preencha um numero de telefone válido\"")
+            );
+        }
+
+        fRepository.save(Cliente.alterar(mClienteEntity.get(), mDto));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ResponseApiUtil.response("Sucesso", "Cliente alterado.")
+        );
     }
 }

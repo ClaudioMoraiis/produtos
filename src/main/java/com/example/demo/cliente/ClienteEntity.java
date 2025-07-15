@@ -95,7 +95,7 @@ public class ClienteEntity implements ClienteDados {
     }
 
     public void setNome(String nome) {
-        this.nome = nome;
+        this.nome = nome.toUpperCase();
     }
 
     public String getDocumento() {
@@ -127,7 +127,7 @@ public class ClienteEntity implements ClienteDados {
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.email = email.toUpperCase();
     }
 
     public String getTelefone() {
@@ -143,7 +143,7 @@ public class ClienteEntity implements ClienteDados {
     }
 
     public void setEndereco(String endereco) {
-        this.endereco = endereco;
+        this.endereco = endereco.toUpperCase();
     }
 
     public String getComplemento() {
@@ -151,7 +151,7 @@ public class ClienteEntity implements ClienteDados {
     }
 
     public void setComplemento(String complemento) {
-        this.complemento = complemento;
+        this.complemento = complemento.toUpperCase();
     }
 
     public String getBairro() {
@@ -159,7 +159,7 @@ public class ClienteEntity implements ClienteDados {
     }
 
     public void setBairro(String bairro) {
-        this.bairro = bairro;
+        this.bairro = bairro.toUpperCase();
     }
 
     public String getCidade() {
@@ -167,7 +167,7 @@ public class ClienteEntity implements ClienteDados {
     }
 
     public void setCidade(String cidade) {
-        this.cidade = cidade;
+        this.cidade = cidade.toUpperCase();
     }
 
     public String getEstado() {
@@ -175,7 +175,7 @@ public class ClienteEntity implements ClienteDados {
     }
 
     public void setEstado(String estado) {
-        this.estado = estado;
+        this.estado = estado.toUpperCase();
     }
 
     public String getCep() {
