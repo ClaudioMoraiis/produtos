@@ -2,8 +2,10 @@ package com.example.demo.produtoCompras;
 
 import com.example.demo.cliente.ClienteEntity;
 import com.example.demo.cliente.ClienteRepository;
+import com.example.demo.cliente.ClienteResumoDTO;
 import com.example.demo.compra.CompraEntity;
 import com.example.demo.compra.CompraRepository;
+import com.example.demo.compra.ListaCompraDTO;
 import com.example.demo.enums.OrigemMovimentoEnum;
 import com.example.demo.enums.StatusCompraEnum;
 import com.example.demo.enums.TipoMovimentoEnum;
@@ -13,6 +15,9 @@ import com.example.demo.produto.ProdutoMapper;
 import com.example.demo.produto.ProdutoRepository;
 import com.example.demo.produtoMovimentacao.ProdutoMovimentacaoEntity;
 import com.example.demo.produtoMovimentacao.ProdutoMovimentacaoRepository;
+import com.example.demo.util.ResponseApiUtil;
+import com.example.demo.util.Util;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 public class ProdutoCompraService {
@@ -140,6 +144,102 @@ public class ProdutoCompraService {
                 mCompraEntity, mProdutoEntity, mProdutoCompraDTO.getQuantidade(),
                 mProdutoCompraDTO.getPreco_unitario(), mSubTotal
         );
+    }
+
+    public ResponseEntity<?> listar(String mDini, String mDfin, String mStatus, HttpServletRequest mRequest){
+        List<CompraEntity> mCompraEntity = new ArrayList<>();
+        List<ListaCompraDTO> mCompraDTO = new ArrayList<>();
+        Set<String> mParametros = mRequest.getParameterMap().keySet();
+        ResponseEntity<?> mValidacao = validarRequest(mDini, mDfin, mStatus, mParametros);
+
+        if (mValidacao.getStatusCode() == HttpStatus.BAD_REQUEST){
+            return mValidacao;
+        }
+
+        if ((mDini != null) && (mDfin != null)){
+            mCompraEntity = fCompraRepository.buscarPorData(Util.formatarData(mDini), Util.formatarData(mDfin));
+        } else {
+            mCompraEntity = fCompraRepository.findAll();
+        }
+
+        Stream<CompraEntity> mStreamFiltrados = mCompraEntity.stream();
+        if ((mStatus != null) && (!mStatus.isEmpty())){
+            mCompraEntity = mStreamFiltrados.filter(c -> c.getStatus() == StatusCompraEnum.valueOf(mStatus.toUpperCase())).toList();
+        }
+
+        if (mCompraEntity == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ResponseApiUtil.response("Erro", "Nenhuma compra localizada"));
+        }
+
+        for (CompraEntity mCompra : mCompraEntity){
+            ListaCompraDTO mDto = new ListaCompraDTO();
+            mDto.setData(mCompra.getData());
+            mDto.setTotal(mCompra.getTotal());
+            mDto.setStatus(mCompra.getStatus().name());
+            mDto.setId(mCompra.getId());
+
+            ClienteEntity mCliente = mCompra.getCliente();
+            if (mCliente != null){
+                ClienteResumoDTO mResumoDTO = new ClienteResumoDTO(mCliente.getId(), mCliente.getNome());
+                mDto.setcliente(mResumoDTO);
+            }
+
+            mCompraDTO.add(mDto);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(mCompraDTO);
+    }
+
+    public ResponseEntity<?> validarRequest(String mDini, String mDfin, String mStatus, Set<String> mParametros) {
+        Set<String> mParametrosRecebidos = mParametros;
+        Set<String> mParametrosPermitidos = Set.of("dataInicial", "dataFinal", "status");
+        Set<String> mStatusLiberado = Set.of("CANCELADA", "PENDENTE", "CONCLUIDA");
+
+        for (String mParam : mParametrosRecebidos) {
+            if (!mParametrosPermitidos.contains(mParam)) {
+                return ResponseEntity.badRequest().body(
+                        ResponseApiUtil.response("Erro", "Utilize apenas os parâmetros " + mParametrosPermitidos)
+                );
+            }
+        }
+
+        if ((mStatus != null)  && (!mStatusLiberado.contains(mStatus))) {
+            return ResponseEntity.badRequest().body(
+                    ResponseApiUtil.response("Erro", "Parâmetro 'status' aceita apenas " + mStatusLiberado)
+            );
+        }
+
+        if ((mDini != null) && (mDfin == null)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    ResponseApiUtil.response("Erro", "Informe uma data final!")
+            );
+        } else if ((mDfin != null) && (mDini == null)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    ResponseApiUtil.response("Erro", "Informe uma data inicial!")
+            );
+        };
+
+        if ((mDini != null) && (mDfin != null)){
+            if ((!mDini.isEmpty()) && (!mDfin.isEmpty())){
+                if ((mDini.replaceAll("/", "").length() != 8) ||
+                        (mDfin.replaceAll("/", "").length() != 8)) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                            ResponseApiUtil.response("Erro", "Informe uma data válida!")
+                    );
+                }
+
+                if (Util.formatarData(mDfin).isBefore(Util.formatarData(mDini))) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                            ResponseApiUtil.response("Erro", "Data final não pode ser menor que inicial!")
+                    );
+                }
+            }
+        }
+
+
+
+        return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
 
 }

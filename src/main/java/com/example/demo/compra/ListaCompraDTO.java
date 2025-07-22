@@ -8,15 +8,13 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
-public class CompraDTO {
-    @JsonProperty("id_cliente")
-    @NotNull(message = "Campo 'id_cliente' não preenchido no body, verifique.")
-    private Long id_cliente;
-
-    @JsonProperty("data_compra")
+@JsonPropertyOrder({"id", "data", "total", "status", "cliente"})
+public class ListaCompraDTO {
+    @JsonProperty("data")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-    @NotNull(message = "Campo 'data_compra' não preechido no body, verifique")
+    @NotNull(message = "Campo 'data' não preechido no body, verifique")
     private LocalDate data;
 
     @JsonProperty("total")
@@ -24,20 +22,25 @@ public class CompraDTO {
 
     private ClienteResumoDTO cliente;
 
-    public CompraDTO(){};
+    private String status;
 
-    public CompraDTO(Long id_cliente, LocalDate data, BigDecimal total) {
-        this.id_cliente = id_cliente;
+    private Long id;
+
+    public ListaCompraDTO(){};
+
+    public ListaCompraDTO(LocalDate data, BigDecimal total, String status, Long id) {
         this.data = data;
         this.total = total;
+        this.status = status;
+        this.id = id;
     }
 
-    public Long getId_cliente() {
-        return id_cliente;
+    public String getStatus() {
+        return status;
     }
 
-    public void setId_cliente(Long id_cliente) {
-        this.id_cliente = id_cliente;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public LocalDate getData() {
@@ -64,27 +67,35 @@ public class CompraDTO {
         this.cliente = cliente;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     @Override
     public final boolean equals(Object o) {
-        if (!(o instanceof CompraDTO compraDTO)) return false;
+        if (!(o instanceof ListaCompraDTO compraDTO)) return false;
 
-        return id_cliente.equals(compraDTO.id_cliente) && data.equals(compraDTO.data) && total.equals(compraDTO.total);
+        return data.equals(compraDTO.data) && total.equals(compraDTO.total);
     }
 
     @Override
     public int hashCode() {
-        int result = id_cliente.hashCode();
-        result = 31 * result + data.hashCode();
-        result = 31 * result + total.hashCode();
+        int result = Objects.hashCode(data);
+        result = 31 * result + Objects.hashCode(total);
+        result = 31 * result + Objects.hashCode(cliente);
         return result;
     }
 
     @Override
     public String toString() {
-        return "CompraDTO{" +
-                "id_cliente=" + id_cliente +
-                ", data=" + data +
+        return "ListaCompraDTO{" +
+                "data=" + data +
                 ", total=" + total +
+                ", cliente=" + cliente +
                 '}';
     }
 }

@@ -4,6 +4,9 @@ import com.example.demo.enums.TipoDocumentoEnum;
 
 import javax.swing.text.MaskFormatter;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class Util {
     public static TipoDocumentoEnum validarTipoDocumento(String mDocumento){
@@ -32,4 +35,14 @@ public class Util {
             return mNumero;
         }
     };
+
+    public static LocalDate formatarData(String mDataEntrada){
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            return LocalDate.parse(mDataEntrada, formatter);
+        } catch (DateTimeParseException e) {
+            System.err.println("Data inválida: " + mDataEntrada);
+            return null;
+        }
+    }
 }
