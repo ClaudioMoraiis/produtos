@@ -30,4 +30,9 @@ public class ProdutoController {
     public ResponseEntity<?> deletar(@PathVariable Long id){
         return fService.deletar(id);
     }
+
+    @GetMapping("/por-saldo")
+    public ResponseEntity buscarPorSaldo(@RequestParam(required = false) Double saldo){
+        return fService.buscarPorSaldo(saldo);
+    }
 }

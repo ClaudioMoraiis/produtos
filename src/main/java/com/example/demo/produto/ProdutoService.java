@@ -96,4 +96,12 @@ public class ProdutoService {
 
         return ResponseEntity.status(HttpStatus.OK).body("Produto inativado com sucesso");
     }
+
+    public ResponseEntity<?> buscarPorSaldo(Double mSaldoLimite){
+        if ((mSaldoLimite == null) || (mSaldoLimite == 0)){
+            return ResponseEntity.status(HttpStatus.OK).body(fRepository.findAll());
+        }else{
+            return ResponseEntity.status(HttpStatus.OK).body(fRepository.buscarPorSaldo(mSaldoLimite));
+        }
+    }
 }

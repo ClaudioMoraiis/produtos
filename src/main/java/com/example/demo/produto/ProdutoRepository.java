@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface ProdutoRepository extends JpaRepository<ProdutoEntity, Long> {
     ProdutoEntity findFirstByNomeAndAtivoTrue(String nome);
@@ -40,4 +41,7 @@ public interface ProdutoRepository extends JpaRepository<ProdutoEntity, Long> {
     @Transactional
     @Query("UPDATE ProdutoEntity p SET p.estoqueAtual = p.estoqueAtual + :mQtdVenda WHERE (p.id = :mId)")
     void devolverSaldo(@Param("mQtdVenda") Float mQtdVenda, @Param("mId") Long mId);
+
+    @Query("SELECT p FROM ProdutoEntity p WHERE (p.estoqueAtual <= :mSaldo)")
+    List<ProdutoEntity> buscarPorSaldo(@Param("mSaldo") Double mSaldo);
 }
