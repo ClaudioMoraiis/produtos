@@ -35,4 +35,10 @@ public class ClienteController {
     public ResponseEntity<?> alterar(@RequestBody ClienteDTO mDto, @PathVariable Long id){
         return fService.alterar(mDto, id);
     }
+
+    @GetMapping("/mais-ativos")
+    public ResponseEntity<?> buscarTop5(){
+        return fService.buscarTop5();
+    }
+
 }

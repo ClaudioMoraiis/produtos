@@ -11,8 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ClienteService {
@@ -100,4 +102,18 @@ public class ClienteService {
                 ResponseApiUtil.response("Sucesso", "Cliente alterado.")
         );
     }
-}
+
+    public ResponseEntity<?> buscarTop5() {
+        List<ClienteQuantidadeDTO> mResultados = fRepository.buscarTop5Clientes();
+
+        List<ClienteQuantidadeDTO> novaLista = mResultados.stream()
+                .map(mI -> {
+                    ClienteQuantidadeDTO mDto = new ClienteQuantidadeDTO();
+                    mDto.setQuantidade(mI.getQuantidade());
+                    mDto.setNome(mI.getNome());
+                    return mDto;
+                }).collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(novaLista);
+       }
+    }
